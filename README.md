@@ -1,8 +1,20 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+##Getting started
+After creating a local copy of this repo with a 
+```bash
+$ git clone [url]
+```
+cd into the package directory and run
+```bash
+$ npm install
+```
+to install modules and dependencies. 
+Afterwards, you can use the commands below to start developing.
+
 ## Available Scripts
 
-### start
+###start
 
 To run the app in development mode, you can run 
 ```bash 
@@ -11,6 +23,15 @@ $ npm start
 from the project root directory. \
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser. \
 It's pretty nice, you get automatic refreshing with every edit, and you can inspect lint errors in the console.
+
+###start-server
+```bash 
+$ npm start-server
+```
+Runs the command `nodemon src/server.js`, which behaves like `node src/server.js`, but with the advantage of automatically 
+restarting the server when changes are written to the source file. \
+The server listens at [http://localhost:8080](http://localhost:8080), but even when the app is running in development 
+mode on port 3000, api calls should work as normal, due to the proxy setup described [here](https://dev.to/loujaybee/using-create-react-app-with-express).
 
 ###test
 _(I haven't really used this feature before.)_
