@@ -14,8 +14,8 @@ app.get('/api/random-int', function (req, res) {
   } else {
     response = {
       message: `Random Integer in [${min}, ${max}]`,
-      generated: (new Date()).toLocaleString(),
-      number: Math.floor(Math.random() * (max - min + 1)) + min
+      generated: new Date().toLocaleString(),
+      number: Math.floor(Math.random() * (max - min + 1)) + min,
     };
     console.log(response);
     res.json(response);
@@ -26,7 +26,7 @@ app.get('/api/random-int', function (req, res) {
 //   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 // });
 
-const hostname = 'localhost'
+const hostname = 'localhost';
 const port = process.env.PORT || 8080;
 app.listen(port, hostname, () => {
   console.log(`Listening at: http://${hostname}:${port}`);
