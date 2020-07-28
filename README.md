@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-##Getting started
+## Getting started
 After creating a local copy of this repo with a 
 ```bash
 $ git clone [url]
@@ -14,7 +14,7 @@ Afterwards, you can use the commands below to start developing.
 
 ## Available Scripts
 
-###start
+### start
 
 To run the app in development mode, you can run 
 ```bash 
@@ -24,7 +24,7 @@ from the project root directory. \
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser. \
 It's pretty nice, you get automatic refreshing with every edit, and you can inspect lint errors in the console.
 
-###start-server
+### start-server
 ```bash 
 $ npm start-server
 ```
@@ -33,7 +33,7 @@ restarting the server when changes are written to the source file. \
 The server listens at [http://localhost:8080](http://localhost:8080), but even when the app is running in development 
 mode on port 3000, api calls should work as normal, due to the proxy setup described [here](https://dev.to/loujaybee/using-create-react-app-with-express).
 
-###test
+### test
 _(I haven't really used this feature before.)_
 ```bash 
 $ npm test
@@ -41,7 +41,7 @@ $ npm test
 launches the test runner in the interactive watch mode.
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-###build
+### build
 ```bash 
 $ npm build
 ```

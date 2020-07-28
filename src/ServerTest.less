@@ -1,0 +1,83 @@
+@import '~antd/dist/antd.less';
+
+@status-error-color: #ff4d4f;
+
+.server-test-main {
+  background: #fff;
+  padding: 32px 24px 24px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 850px;
+  min-width: fit-content;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.page-title {
+  text-align: center;
+  width: 100%;
+}
+
+.page-subtitle {
+  font-style: italic;
+  text-align: center;
+  margin: 0 0 24px;
+  width: 100%;
+}
+
+.server-test-card {
+  margin: 0 auto;
+  min-width: 350px;
+  max-width: 600px;
+  width: 100%;
+
+  &.results-card {
+    width: fit-content;
+  }
+}
+
+.main-divider {
+  margin: 24px 0;
+
+  span {
+    font-size: 1.5em;
+    color: #f0f0f0;
+  }
+}
+
+.card-body-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+
+  &.input {
+    .ant-slider {
+      min-width: 250px;
+    }
+
+    button {
+      margin: 20px auto 0;
+    }
+  }
+
+  &.results {
+    h1 {
+      margin: 0 auto;
+
+      &.status-error {
+        color: @status-error-color;
+      }
+    }
+
+    h2 {
+      margin: 20px auto 0;
+      font-size: 14pt;
+      line-height: 1;
+      color: @text-color-secondary;
+      font-weight: normal;
+    }
+  }
+}
