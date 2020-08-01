@@ -1,8 +1,9 @@
 @import '~antd/dist/antd.less';
 
 @status-error-color: #ff4d4f;
+@text-color-secondary: rgba(0, 0, 0, 0.45);
 
-.server-test-main {
+.ServerTest {
   background: #fff;
   padding: 32px 24px 24px;
   margin: 0 auto;
@@ -39,12 +40,16 @@
 }
 
 .main-divider {
-  margin: 24px 0;
-
   span {
     font-size: 1.5em;
     color: #f0f0f0;
   }
+}
+
+.card-wrapper {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
 .card-body-wrapper {
@@ -80,4 +85,10 @@
       font-weight: normal;
     }
   }
+}
+
+.react-link {
+  display: block;
+  width: 100%;
+  text-align: center;
 }

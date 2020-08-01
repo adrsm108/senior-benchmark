@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './ServerTest.less';
-import {Button, Card, Divider, Slider, Space, Switch, Typography} from 'antd';
+import {Button, Card, Divider, Slider, Space, Switch, Typography} from 'antd'; // Components we'll use from antd
+// They'll mostly appear in JSX.
 import {DownCircleOutlined} from '@ant-design/icons';
 
 const {Text, Title, Link} = Typography;
@@ -57,7 +58,7 @@ class ServerTest extends Component {
   // The class is constructed from its props (the xml-like key="value" pairs in the JSX expression)
   constructor(props) {
     super(props); // Explicitly call component prototype constructor.
-    // any Component that requires an internal state to decide its appearance or behavior should maintain a state object.
+    // any Component that requires an internal state to decide its appearance or behavior should maintain a state object
     // with the 'state' key. How we choose to structure the state object is arbitrary, but the only place you should
     // directly assign this.state is in the constructor.
     // After construction, changes to a component's state must be made through the function this.setState, inherited
@@ -65,8 +66,8 @@ class ServerTest extends Component {
     // More info here: https://reactjs.org/docs/state-and-lifecycle.html#using-state-correctly
     this.state = {
       numberRange: [-10, 10], // represents our range of numbers selected on the slider.
-      fuckUpOnPurpose: false, // should we mess up our api call, to test what happens when a request fails.
-      loading: true, // flag to indicate whether the component is currently loading
+      fuckUpOnPurpose: false, // should we mess up our api call? Use to test what happens when a request fails.
+      loading: true, // is the component is currently loading a new server response?
       response: {
         // represents the latest response from the server. Initialize with nullish stuff.
         ok: false,
@@ -75,8 +76,7 @@ class ServerTest extends Component {
         data: {},
       },
     };
-    // Properties that won't change or don't affect the component's DOM representation can be stored and manipulated
-    // in the usual way.
+    // Properties that won't change or don't affect the component's rendering can be stored and manipulated like usual
     this.sliderRange = [-50, 50, 10]; // [min, max, step]
     this.sliderMarks = makeSliderMarks(this.sliderRange); // compute marks once in the constructor and store result
   }
@@ -134,15 +134,15 @@ class ServerTest extends Component {
               response: {
                 ok: true, // valid response parsed successfully
                 status: null,
-                timestr: new Date().toTimeString().split(' ', 1)[0],
+                timestr: new Date().toTimeString().split(' ', 1)[0], // time string for when we finished.
                 data: data,
               },
             });
           })
           .catch((error) => {
-            // Any error raised in the previous two callbacks will be caught here. To see if we're here b/c of a bad
-            // status code, we check the badResponse property of our error, which should only be defined if we threw
-            // it ourselves from the first callback.
+            // Any error raised in the previous two callbacks will be caught here.
+            // To see if we're here b/c of a bad status code, we check the badResponse property of our error, which
+            // should only be defined if we threw it ourselves from the first callback.
             const {badResponse} = error;
             this.setState({
               loading: false, // loading has still finished.
@@ -165,9 +165,8 @@ class ServerTest extends Component {
   render() {
     const {loading, response} = this.state;
     const rc = collectResultsContent(loading, response);
-    const largeVertical = {size: 'large', direction: 'vertical'}; //props object for large vertical space
-    // extract properties of slider to a variable for readability
     const sliderProps = {
+      // extract properties of slider to a variable for readability
       min: this.sliderRange[0],
       max: this.sliderRange[1],
       marks: this.sliderMarks,
@@ -176,50 +175,49 @@ class ServerTest extends Component {
       onAfterChange: this.handleGetRandomNumber,
     };
     return (
-      // Wrapping long JSX expressions in parens is usually a good idea, since it
-      // prevents the parser from helpfully inserting semicolons where they should not be.
-      <div className="server-test-main">
+      // Wrapping long JSX expressions in parens is usually a good idea, since it prevents the parser from helpfully
+      // inserting semicolons where they should not be.
+      <div className="ServerTest">
         <Title className="page-title">Server Request Demo</Title>
         <Text className="page-subtitle">"To prove our back end works!"</Text>
-        <Space {...largeVertical /* same as size="large" direction="vertical" */}>
-          <Card
-            className="server-test-card"
-            title="Input"
-            extra={
-              <Space>
-                Fuck up.
-                <Switch onChange={this.handleSwitchChange} />
-              </Space>
-            }
-          >
-            <div className="input card-body-wrapper">
-              <Slider range {...sliderProps} />
-              <Button type="primary" onClick={this.handleGetRandomNumber}>
-                Get Random Integer!
-              </Button>
-            </div>
-          </Card>
-        </Space>
-        <Divider className="main-divider">
-          <DownCircleOutlined />
-        </Divider>
-        <Space {...largeVertical} align="center">
-          <Card
-            className="server-test-card results-card"
-            loading={loading}
-            title={rc.title}
-            extra={<Text type="secondary">{response.timestr}</Text>}
-          >
-            <div className="results card-body-wrapper">
-              <Title className={rc.mainClass}>{rc.main}</Title>
-              <Title level={2}>{rc.sub}</Title>
-            </div>
-            {
-              rc.additional /* This expression is either a fragment, or some falsy value.
-             falsy */
-            }
-          </Card>
-          <Link href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
+        <Space direction="vertical" size="large">
+          <div className="card-wrapper">
+            <Card
+              className="server-test-card"
+              title="Input"
+              extra={
+                <Space>
+                  Fuck up.
+                  <Switch onChange={this.handleSwitchChange} />
+                </Space>
+              }
+            >
+              <div className="input card-body-wrapper">
+                <Slider range {...sliderProps} />
+                <Button type="primary" onClick={this.handleGetRandomNumber}>
+                  Get Random Integer!
+                </Button>
+              </div>
+            </Card>
+          </div>
+          <Divider className="main-divider">
+            <DownCircleOutlined />
+          </Divider>
+          <div className="card-wrapper">
+            <Card
+              className="server-test-card results-card"
+              loading={loading}
+              title={rc.title}
+              extra={<Text type="secondary">{response.timestr}</Text>}
+            >
+              <div className="results card-body-wrapper">
+                <Title className={rc.mainClass}>{rc.main}</Title>
+                <Title level={2}>{rc.sub}</Title>
+              </div>
+              {rc.additional /* Directly embed fragment or falsy value.*/}
+            </Card>
+          </div>
+          <Link href="https://reactjs.org" target="_blank" rel="noopener noreferrer" className="react-link">
             More About React
           </Link>
         </Space>

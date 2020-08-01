@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.less';
 import {Layout, Typography} from 'antd';
 import ServerTest from './ServerTest';
+import ClickTest from './ClickTest';
 
 const {Title} = Typography;
 const {Header, Content, Footer} = Layout;
@@ -11,10 +12,11 @@ class App extends Component {
     return (
       <Layout id="app-layout">
         <Header id="app-header">
-          <Title>Project Title</Title>
+          <Title>web dev dot com</Title>
         </Header>
         <Layout id="content-layout">
           <Content id="main-content">
+            {/*<ClickTest testLength={5} targetRadius={50} maxWidth="auto" />*/}
             <ServerTest />
           </Content>
         </Layout>
