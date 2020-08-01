@@ -1,1 +1,84 @@
 @import '~antd/dist/antd.less';
+
+.ClickTest {
+  border: 1px solid greenyellow;
+  background: #fff;
+  padding: 32px 24px 24px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: flex-start;
+
+  min-width: fit-content;
+}
+
+.main-title {
+  text-align: center;
+}
+
+.test-area-container {
+  border: 1px solid fuchsia;
+  margin: 0 auto;
+
+}
+
+svg.test-area {
+  border: 1px solid orange;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+
+svg.Target, svg.StartButton {
+  overflow: visible;
+  cursor: pointer;
+}
+
+svg.StartButton {
+  .button-body {
+    fill: blueviolet;
+    font-size: 18pt;
+  }
+
+  .button-text {
+    text-anchor: middle;
+    alignment-baseline: middle;
+    font-size: 18pt;
+    fill: white;
+    pointer-events: none;
+  }
+}
+
+svg.Target {
+  .target-ring{
+    pointer-events: none;
+  }
+  //.target-ring:nth-of-type(3n+0) {
+  //  fill: cornflowerblue;
+  //}
+  //.target-ring:nth-of-type(3n+1) {
+  //  fill: greenyellow;
+  //}
+  //.target-ring:nth-of-type(3n+2) {
+  //  fill: rebeccapurple;
+  //}
+
+  .target-ring:nth-of-type(2n+0) {
+    fill: white;
+  }
+
+  .target-ring:nth-of-type(2n+1) {
+    fill: darkred;
+  }
+
+
+  .target-center {
+    fill: fuchsia;
+  }
+  .target-body {
+    stroke: deeppink;
+    pointer-events: auto;
+  }
+}
