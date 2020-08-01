@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './App.less';
 import {Layout, Typography} from 'antd';
 import ServerTest from './ServerTest';
-import ClickTest from './ClickTest';
+import ReactionTimeTest from './ReactionTimeTest';
 
 const {Title} = Typography;
 const {Header, Content, Footer} = Layout;
@@ -16,8 +16,11 @@ class App extends Component {
         </Header>
         <Layout id="content-layout">
           <Content id="main-content">
-            {/*<ClickTest testLength={5} targetRadius={50} maxWidth="auto" />*/}
-            <ServerTest />
+            {/*<div id="mydiv">*/}
+            {/*  Hello!*/}
+            {/*</div>*/}
+            {/*<ServerTest />*/}
+            <ReactionTimeTest id="rtt"/>
           </Content>
         </Layout>
         <Footer id="app-footer">Jesus Christ is that a footer????</Footer>

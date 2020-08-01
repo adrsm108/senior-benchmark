@@ -62,18 +62,32 @@ export function dist2d([x0, y0], [x1, y1]) {
   return Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
 }
 
-// Returns a string representation of the given number of milliseconds in hh:mm:ss:fff format,
-// with hh and mm omitted if they are 0.
-export function formatMilliseconds(ms) {
+/*
+Returns a string representation of the given number of milliseconds in hh:mm:ss:fff format.
+Second argument can be used to specify the minimum number of segments in the result. With the default value (2),
+hours and minutes are omitted as appropriate.
+
+formatMilliseconds(500) ~~> "00:500"
+formatMilliseconds(5000) ~~> "05:000"
+formatMilliseconds(500000) ~~> "08:20:000"
+formatMilliseconds(5000000) ~~> "01:23:20:000"
+
+formatMilliseconds(500, 1) ~~> "500"
+formatMilliseconds(500, 3) ~~> "00:00:500"
+formatMilliseconds(500, 4) ~~> "00:00:00:500"
+* */
+
+export function formatMilliseconds(ms, minSegments = 2) {
   const sec = Math.floor(ms / 1000);
   const min = Math.floor(sec / 60);
   const hr = Math.floor(min / 60);
   return (
-    (hr ? hr.toString().padStart(2, '0') + ':' : '') +
-    (min ? min.toString().padStart(2, '0') + ':' : '') +
-    `${sec.toString().padStart(2, '0')}:${Math.floor(ms % 1000)
+    (hr || minSegments >= 4 ? hr.toString().padStart(2, '0') + ':' : '') +
+    (min || minSegments >= 3 ? (min % 60).toString().padStart(2, '0') + ':' : '') +
+    (sec || minSegments >= 2 ? (sec % 60).toString().padStart(2, '0') + ':' : '') +
+    Math.floor(ms % 1000)
       .toString()
-      .padStart(3, '0')}`
+      .padStart(3, '0')
   );
 }
 
@@ -89,7 +103,7 @@ export function timing(f, ...args) {
 // Runs f(...args) n times, returning execution time statistics and last evaluation result.
 export function repeatedTiming(n, f, ...args) {
   n = Math.floor(n);
-  if (n < 1) throw new TypeError('n should be greater than 1.');
+  if (n < 1) throw new TypeError('Number of trials should be greater than 1.');
   if (n === 1) return timing(f, ...args);
   const times = [];
   let t0, t1, result;
@@ -113,9 +127,10 @@ export function repeatedTiming(n, f, ...args) {
 }
 
 /* Maps a function over a range of integers without generating an intermediate array
- mapLength(n, f) ~~> [ f(0), f(1), ..., f(floor(n-1)) ] if n >= 0
-                     [ f(0), f(-1), ..., f(ceil(n+1)) ] if n < 0
- Saves memory over range(n).map(f)
+mapLength(n, f) ~~> [ f(0), f(1), ..., f(floor(n-1)) ] if n >= 1
+                    [ f(0), f(-1), ..., f(ceil(n+1)) ] if n <= -1
+                    [ ]                                otherwise
+Saves memory over range(n).map(f)
 */
 export function mapLength(n, f) {
   return Array.from({length: Math.abs(n)}, n >= 0 ? (_, i) => f(i) : (_, i) => f(-i));
