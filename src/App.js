@@ -3,6 +3,7 @@ import './App.less';
 import {Layout, Typography} from 'antd';
 import ServerTest from './ServerTest';
 import ReactionTimeTest from './ReactionTimeTest';
+import ClickTest from './ClickTest';
 
 const {Title} = Typography;
 const {Header, Content, Footer} = Layout;
@@ -20,6 +21,7 @@ class App extends Component {
             {/*  Hello!*/}
             {/*</div>*/}
             {/*<ServerTest />*/}
+            {/*<ClickTest />*/}
             <ReactionTimeTest id="rtt"/>
           </Content>
         </Layout>

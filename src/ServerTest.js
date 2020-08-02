@@ -217,7 +217,12 @@ class ServerTest extends Component {
               {rc.additional /* Directly embed fragment or falsy value.*/}
             </Card>
           </div>
-          <Link href="https://reactjs.org" target="_blank" rel="noopener noreferrer" className="react-link">
+          <Link
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="react-link"
+          >
             More About React
           </Link>
         </Space>

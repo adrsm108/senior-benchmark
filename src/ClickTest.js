@@ -30,13 +30,13 @@ Target.defaultProps = {
   pos: [0, 0], // x, y location
   r: 50, // target radius
   rings: 3, // number of rings
-  cr: 4, // center radius
+  cr: 4 // center radius
 };
 
 function StartButton(props) {
   return (
     <svg x="50%" y="50%" className="StartButton">
-      <circle {...props} className="button-body" />
+      <circle {...props} className="button-body"/>
       <text className="button-text">{props.children}</text>
     </svg>
   );
@@ -51,9 +51,9 @@ const RESULTS_COLUMNS = [
       {
         title: 'Distance',
         key: 'elapsed',
-        render: (text, row) => dist2d(row.pos, row.clickPos).toFixed(3),
-      },
-    ],
+        render: (text, row) => dist2d(row.pos, row.clickPos).toFixed(3)
+      }
+    ]
   },
   {
     title: 'Time',
@@ -63,29 +63,30 @@ const RESULTS_COLUMNS = [
       {
         title: 'Elapsed',
         key: 'elapsed',
-        render: (text, row) => formatMilliseconds(row.clickTime - row.spawnTime),
-      },
-    ],
-  },
+        render: (text, row) => formatMilliseconds(row.clickTime - row.spawnTime)
+      }
+    ]
+  }
 ];
 
 class ClickTest extends Component {
   constructor(props) {
     super(props);
     this.testLog = [];
+    this.targetSpawnTime = null;
     this.testArea = React.createRef();
     this.state = {
       testActive: false,
       target: null,
       remainingTargets: null,
       testTimeout: null,
-      results: null,
+      results: null
     };
   }
 
   componentDidMount() {
     this.setState({
-      target: this.createTarget(true),
+      target: this.createTarget(true)
     });
   }
 
@@ -101,12 +102,11 @@ class ClickTest extends Component {
     return {
       pos: this.testArea.current
         ? takeValues(
-            this.testArea.current,
-            ['clientWidth', 'clientHeight'],
-            (x) => Math.floor(Math.random() * x) // integer coordinates
-          )
-        : [0, 0],
-      spawnTime: performance.now(),
+          this.testArea.current,
+          ['clientWidth', 'clientHeight'],
+          (x) => Math.floor(Math.random() * x) // integer coordinates
+        )
+        : [0, 0]
     };
   };
 
@@ -118,23 +118,25 @@ class ClickTest extends Component {
     }
     this.testLog.push(
       Object.assign(this.state.target, {
+        spawnTime: this.targetSpawnTime,
         clickPos: [event.offsetX, event.offsetY],
-        clickTime: now,
+        clickTime: now
       })
     );
+    this.targetSpawnTime = null;
     this.setState((state) => {
       return state.remainingTargets > 0
         ? {
-            remainingTargets: state.remainingTargets - 1,
-            testActive: true,
-            target: this.createTarget(),
-          }
+          remainingTargets: state.remainingTargets - 1,
+          testActive: true,
+          target: this.createTarget()
+        }
         : {
-            testActive: false,
-            remainingTargets: null,
-            target: null,
-            results: this.testLog,
-          };
+          testActive: false,
+          remainingTargets: null,
+          target: null,
+          results: this.testLog
+        };
     });
   };
 
@@ -142,16 +144,17 @@ class ClickTest extends Component {
     if (this.testActive) return;
     console.log('starting test.');
     this.testLog = [];
+    this.targetSpawnTime = null;
     this.setState({
       testActive: true,
       remainingTargets: this.props.testLength - 1,
       target: this.createTarget(),
-      results: null,
+      results: null
     });
   };
 
   render() {
-    return (
+    const result = (
       <div className="ClickTest" style={this.props.style}>
         <Space direction="vertical">
           <Title className="main-title">Click Test</Title>
@@ -159,7 +162,7 @@ class ClickTest extends Component {
             className="test-area-container"
             style={{
               padding: this.props.targetRadius,
-              ..._.pick(this.props, ['minWidth', 'maxWidth', 'minHeight', 'maxHeight']),
+              ..._.pick(this.props, ['minWidth', 'maxWidth', 'minHeight', 'maxHeight'])
             }}
           >
             <svg
@@ -198,11 +201,15 @@ class ClickTest extends Component {
               columns={RESULTS_COLUMNS}
               dataSource={this.state.results}
               rowKey="spawnTime"
-            />,
+            />
           ]}
         </Space>
       </div>
     );
+    if (this.state.target && !this.targetSpawnTime) {
+      this.targetSpawnTime = performance.now();
+    }
+    return result;
   }
 }
 
@@ -211,7 +218,7 @@ ClickTest.defaultProps = {
   maxWidth: 1000,
   height: 500,
   targetRadius: 50,
-  testLength: 5,
+  testLength: 5
 };
 
 export default ClickTest;
