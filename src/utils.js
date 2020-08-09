@@ -143,3 +143,11 @@ export function mapLength(n, f) {
 export function takeValues(obj, keys, f = identity) {
   return keys.map((k) => f(obj[k], k));
 }
+
+export function total(array) {
+  return array.length ? array.reduce((s, x) => s + x, 0) : Number.NaN;
+}
+
+export function mean(array) {
+  return array.length ? total(array) / array.length : Number.NaN;
+}
