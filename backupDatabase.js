@@ -1,17 +1,21 @@
-/*
-* backupDatabase.js
-*
-* usage:
-*   node backupDatabase.js [location]
-* OR
-*   npm run backup-database [location]
-*
-* Creates local backup of database specified under "pool" key of env.json.
-*
-* By default, backup is written to a new file at /test/data/path_TIMESTAMP.sql, where
-* /test/data/path.sql is read from the "testDataPath" key of env.json.
-* An additional argument may be used to specify a different target path.
-* */
+/**
+ * ## backupDatabase.js
+ * ### Create local backup of database specified under _pool_ key in env.json.
+ *
+ * Can be invoked directly with
+ * ```
+ *   node backupDatabase.js [location]
+ * ```
+ * Or from within the project via the npm script
+ * ```
+ *   npm run backup-database [location]
+ * ```
+ *
+ * By default, the backup is written to a new file `/path/testdata_TIMESTAMP.sql`, where the value
+ * of `/path/testdata.sql` is read from the _testDataPath_ key in env.json.
+ *
+ * The optional argument _loacation_ may be supplied to specify a different target path for the backup.
+ */
 
 const fs = require('fs');
 const path = require('path');
@@ -25,7 +29,7 @@ const backupFile = path.resolve(
     )
 );
 require('child_process').exec(
-  `mysqldump -u ${pool.user} -p ${pool.database}`,
+  `mysqldump -R -u ${pool.user} -p ${pool.database}`,
   (error, stdout, stderr) => {
     console.log(`Attempting to backup database ${pool.database}`);
     if (error) throw error;

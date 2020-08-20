@@ -1,12 +1,23 @@
 import React, {Component} from 'react';
 import './App.less';
-import {Layout, Typography} from 'antd';
+import {Divider, Layout, Typography, Space} from 'antd';
 import ReactionTimeTest from './ReactionTimeTest';
+import AimTest from './AimTest';
 
-const {Title} = Typography;
+const {Title, Text, Link} = Typography;
 const {Header, Content, Footer} = Layout;
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    // Randomize order on initial load, but never change once the app has started.
+    this.footerLinks = [
+      <Link key="Adam">Adam Smith</Link>,
+      <Link key="Aaron">Aaron Zehm</Link>,
+    ];
+    if (Math.random() < 0.5) this.footerLinks.reverse();
+  }
+
   render() {
     return (
       <Layout id="app-layout">
@@ -18,7 +29,12 @@ class App extends Component {
             <ReactionTimeTest />
           </Content>
         </Layout>
-        <Footer id="app-footer">Jesus Christ is that a footer????</Footer>
+        <Footer id="app-footer">
+          <div className="footer-content">
+            <Text>2020</Text>
+            {this.footerLinks}
+          </div>
+        </Footer>
       </Layout>
     );
   }

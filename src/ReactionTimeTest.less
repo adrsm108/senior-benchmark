@@ -1,22 +1,21 @@
-@import '~antd/dist/antd.less';
+//@import '~antd/dist/antd.less';
 @import 'mixins';
+@import 'theme';
 
-@round-failed-color: orange;
-@between-rounds-color: teal;
-@triggered-color: limegreen;
-@round-active-color: red;
-@test-complete-color: darkcyan;
-@test-unstarted-color: gray;
+@content-background: @theme-light-gray;
 
-@delta-positive-color: orange;
-@delta-negative-color: lightgreen;
-@delta-zero-color: lightgreen;
+@round-failed-color: @theme-orange;
+@between-rounds-color: @theme-blue;
+@triggered-color: @theme-green;
+@round-active-color: @theme-pink;
+@test-complete-color: @theme-blue;
+@test-unstarted-color: @theme-gray;
 
 @border-faint: 1px solid rgba(255, 255, 255, 0.3);
 @border-bright: 1px solid rgba(255, 255, 255, 0.5);
 
 .ReactionTimeTest {
-  background: #fff;
+  background: @content-background;
   padding: 32px 0;
   margin: 0 auto;
   width: 100%;
@@ -182,76 +181,3 @@
   }
 }
 
-// Table styling
-.ScoreTable {
-  width: fit-content;
-  margin: 0 auto;
-  padding: 10px 0;
-  text-align: center;
-  border-collapse: collapse;
-  font-size: 1.2rem;
-  flex-grow: 0;
-
-  table {
-    table-layout: auto;
-    width: 100%;
-    text-align: right;
-    vertical-align: baseline;
-
-    th {
-      text-align: right;
-      padding: 10px 15px;
-      font-weight: normal;
-      border-bottom: @border-bright;
-    }
-
-    td {
-      font-size: 0.9em;
-      padding: 5px 15px;
-      border-bottom: @border-faint;
-    }
-
-    td:last-of-type,
-    th:last-of-type {
-      border-bottom: none;
-    }
-
-    td.delta {
-      font-size: 0.8em;
-      text-align: left;
-      padding-right: 0;
-      padding-left: 5px;
-
-      &.negative {
-        color: @delta-negative-color;
-      }
-
-      &.zero {
-        color: @delta-zero-color;
-      }
-
-      &.positive {
-        color: @delta-positive-color;
-      }
-    }
-
-    tbody {
-      tr:last-of-type {
-        td {
-          border-bottom: @border-bright;
-        }
-
-        td:last-of-type {
-          border-bottom: none;
-        }
-      }
-    }
-
-    tfoot {
-      td {
-        padding: 5px 15px;
-        border-bottom: none;
-      }
-    }
-  }
-}

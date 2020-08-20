@@ -1,10 +1,13 @@
-@import '~antd/dist/antd.less';
+//@import '~antd/dist/antd.less';
+@import './theme';
 
-@header-background: #001529;
+//@header-background: @theme-dark;
+@header-background: @theme-darkest-blue;
 @header-color: white;
-@content-layout-background: #f0f2f5;
+@content-layout-background: @theme-light-gray;
 @footer-background: @content-layout-background;
 @footer-color: black;
+
 
 #app-layout {
   min-height: 100vh;
@@ -29,6 +32,13 @@
   color: @footer-color;
   padding: 10px 32px;
   font-style: italic;
+  justify-content: center;
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 #content-layout {

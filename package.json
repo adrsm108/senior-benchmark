@@ -11,8 +11,11 @@
     "antd": "^4.4.3",
     "concurrently": "^5.2.0",
     "craco-less": "^1.17.0",
+    "d3": "^5.16.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "lodash-es": "^4.17.15",
+    "express-http-to-https": "^1.1.4",
+    "lodash": "^4.17.19",
     "mariadb": "^2.4.2",
     "nodemon": "^2.0.4",
     "react": "^16.13.1",
@@ -21,8 +24,8 @@
   },
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "nodemon server.js",
-    "client": "node startClient.js",
+    "server": "cross-env PORT=3000 nodemon server.js",
+    "client": "cross-env PORT=4000 node startClient.js",
     "reset-database": "node resetDatabase.js",
     "backup-database": "node backupDatabase.js",
     "start-app": "craco start",
@@ -45,10 +48,13 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:3001",
+  "proxy": "http://localhost:3000",
   "prettier": {
     "printWidth": 80,
     "singleQuote": true,
     "bracketSpacing": false
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.2"
   }
 }

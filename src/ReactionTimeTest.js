@@ -1,137 +1,99 @@
 import React, {Component} from 'react';
-import {Space, Statistic, Typography} from 'antd';
-import {mapLength, mean} from './utils';
+import {Button, Space, Statistic, Typography} from 'antd';
+import {getTimerInfo, mapLength, mean} from './utils';
+// import _ from 'lodash';
+import * as d3 from 'd3';
 import './ReactionTimeTest.less';
+import {ScoreTable} from './ScoreTable';
+import ResultsPanel from './ResultsPanel';
 
 const {Text, Title} = Typography;
-
-const MAX_WAIT = 1000; // milliseconds
-const MIN_WAIT = 200;
-const ROUNDS = 5;
-
-function submitTimes(user, times) {
-  console.log('submitting times.');
-  fetch('/api/reaction-time', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({user, times}),
-  })
-    .then((response) => {
-      console.log(response);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
-
-function ScoreTable(props) {
-  const {data, rounds} = props;
-  const xbar = mean(data);
-  const formatDelta = (delta) =>
-    delta > 0 ? (
-      <td className="delta positive">{'+' + delta.toFixed(2)}</td>
-    ) : delta < 0 ? (
-      <td className="delta negative">{delta.toFixed(2)}</td>
-    ) : delta > 0 ? (
-      <td className="delta zero">0.00</td>
-    ) : (
-      <td className="delta" />
-    );
-  return (
-    <div className="ScoreTable">
-      <table>
-        <thead>
-          <tr>
-            <th>ROUND</th>
-            <th>TIME (ms)</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {mapLength(rounds, (i) =>
-            i < data.length ? (
-              <tr key={i + 1}>
-                <td>{i + 1}</td>
-                <td>{data[i].toFixed(2)}</td>
-                {formatDelta(
-                  // when only one data point, delta is NaN, and formatDelta returns empty tag.
-                  i === data.length - 1 && data[i] - data[i - 1]
-                )}
-              </tr>
-            ) : (
-              <tr key={i + 1}>
-                <td>{i + 1}</td>
-                <td />
-                <td />
-              </tr>
-            )
-          )}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td />
-            <td>{xbar.toFixed(2) /* mean */}</td>
-            {formatDelta(
-              // change in mean from last round
-              (data[data.length - 1] - xbar) / (data.length - 1)
-            )}
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  );
-}
-
-ScoreTable.defaultProps = {
-  data: [],
-  rounds: ROUNDS,
-};
 
 class ReactionTimeTest extends Component {
   constructor(props) {
     super(props);
 
+    this.resultsId = null;
     this.triggerTime = null;
+    this.timer = null;
     this.state = {
       testActive: false,
       roundActive: false,
       roundFailed: false,
       triggered: false,
-      resultTime: null,
       timeoutId: null,
       round: null,
       times: [],
+      results: null,
     };
+    this.timer = getTimerInfo();
 
-    /*
+/*
+    //Test data
     this.state = {
-      // Test results screen
       testActive: false,
       roundActive: false,
       roundFailed: false,
       triggered: false,
-      resultTime: 351.47500003222376,
       timeoutId: null,
       round: null,
-      times: [
-        387.5499999849126,
-        380.89500000933185,
-        69.5799999642186,
-        279.89000000525266,
-        351.47500003222376,
-      ],
+      times: [291.0750000155531, 281.27500001573935, 290.0750000262633, 270.9000000031665, 253.12499998835847,],
+      results: {
+        globalSummary: {n: 495, mean: 401.3, sd: 522.603, min: 1.03, q1: 259.137, median: 297.605, q3: 369.628, max: 5635.48},
+        histogram: {
+          bins: 202,
+          binStart: 0,
+          binWidth: 27.94,
+          data: [{bin: 0, freq: 0.0263}, {bin: 1, freq: 0.0101}, {bin: 2, freq: 0.0061}, {bin: 3, freq: 0.0162,}, {bin: 4, freq: 0.0101}, {bin: 5, freq: 0.0121}, {bin: 6, freq: 0.0182}, {bin: 7, freq: 0.0384,}, {bin: 8, freq: 0.0848}, {bin: 9, freq: 0.1394}, {bin: 10, freq: 0.204}, {bin: 11, freq: 0.103,}, {bin: 12, freq: 0.0707}, {bin: 13, freq: 0.0465}, {bin: 14, freq: 0.0202}, {bin: 15, freq: 0.0364,}, {bin: 16, freq: 0.0263}, {bin: 17, freq: 0.0162}, {bin: 18, freq: 0.0101}, {bin: 19, freq: 0.0121,}, {bin: 20, freq: 0.0061}, {bin: 21, freq: 0.0081}, {bin: 22, freq: 0.0121}, {bin: 23, freq: 0.004,}, {bin: 24, freq: 0.002}, {bin: 25, freq: 0.002}, {bin: 26, freq: 0.002}, {bin: 28, freq: 0.002,}, {bin: 29, freq: 0.004}, {bin: 31, freq: 0.0061}, {bin: 34, freq: 0.002}, {bin: 36, freq: 0.002,}, {bin: 37, freq: 0.002}, {bin: 39, freq: 0.0061}, {bin: 41, freq: 0.002}, {bin: 46, freq: 0.004,}, {bin: 49, freq: 0.002}, {bin: 65, freq: 0.002}, {bin: 72, freq: 0.002}, {bin: 78, freq: 0.002,}, {bin: 79, freq: 0.002}, {bin: 80, freq: 0.002}, {bin: 101, freq: 0.002}, {bin: 105, freq: 0.002,}, {bin: 127, freq: 0.002}, {bin: 144, freq: 0.002}, {bin: 163, freq: 0.002}, {bin: 183, freq: 0.002,}, {bin: 201, freq: 0.002}],
+        },
+        query: {
+          id: 124,
+          times: [291.075, 281.275, 290.075, 270.9, 253.125],
+          mean: 277.29,
+          sd: 15.765,
+          meanQuantile: 0.2551020408,
+          sdQuantile: 0.0408163265,
+        },
+      },
       testComplete: false,
     };
-     */
+*/
   }
 
-  componentWillUnmount() {
-    if (this.state.timeoutId) {
-      clearTimeout(this.state.timeoutId);
-    }
-  }
+  submitTimes = (user, times, timer) => {
+    console.log('submitting times.');
+    fetch('/api/reaction-time', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({user, times, resolution: timer.resolution}),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        this.updateResults(data.insertId);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  updateResults = (resultsId) => {
+    this.resultsId = resultsId;
+    console.log('updating results');
+    this.setState({results: null}, () =>
+      fetch(`/api/reaction-time?id=${resultsId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          this.setState({results: data});
+        })
+        .catch((error) => {
+          console.log('a badness!');
+          console.error(error);
+        })
+    );
+  };
 
   generateStatusAndMessage() {
     const state = this.state;
@@ -164,11 +126,15 @@ class ReactionTimeTest extends Component {
           <div className="reaction-area-message">
             <Statistic
               className="result-time"
-              value={this.state.resultTime}
-              precision={2}
+              value={this.state.times[this.state.times.length - 1]}
+              precision={this.timer.precision}
               suffix="ms"
             />
-            <ScoreTable data={this.state.times} rounds={ROUNDS} />
+            <ScoreTable
+              data={this.state.times}
+              rounds={this.props.rounds}
+              precision={this.timer.precision}
+            />
             <span className="message-small-subtitle">
               Click anywhere to continue...
             </span>
@@ -185,19 +151,23 @@ class ReactionTimeTest extends Component {
                 <Statistic
                   className="result-time"
                   value={mean(this.state.times)}
-                  precision={2}
+                  precision={Math.min(this.timer.precision + 2, 2)}
                   suffix="ms"
                 />
                 <div className="stat-label">Fastest</div>
                 <Statistic
                   className="result-time"
                   value={Math.min(...this.state.times)}
-                  precision={2}
+                  precision={this.timer.precision}
                   suffix="ms"
                 />
               </div>
               <div className="divider" />
-              <ScoreTable data={this.state.times} rounds={ROUNDS} />
+              <ScoreTable
+                data={this.state.times}
+                rounds={this.props.rounds}
+                precision={this.timer.precision}
+              />
             </div>
             <span className="message-small-subtitle">
               Click anywhere to play again.
@@ -213,10 +183,11 @@ class ReactionTimeTest extends Component {
   }
 
   handleTestStart = () => {
+    this.timer = getTimerInfo(); // assumes timer resolution won't change mid run.
     this.setState(
       (state) =>
         state.testActive
-          ? null // returning null in setState prevents update from being triggered.
+          ? null // won't trigger update
           : {
               round: 1,
               testActive: true,
@@ -224,12 +195,12 @@ class ReactionTimeTest extends Component {
               testComplete: false,
               times: [],
             },
-      this.handleRoundStart
+      this.handleRoundStart // callback for after state is set
     );
   };
 
   handleRoundStart = () => {
-    this.setState((state) => {
+    this.setState((state, props) => {
       if (state.roundActive) return null;
 
       this.triggerTime = null;
@@ -237,14 +208,13 @@ class ReactionTimeTest extends Component {
         roundActive: true,
         roundFailed: false,
         triggered: false,
-        resultTime: null,
         timeoutId: setTimeout(
           () =>
             this.setState({
               triggered: true,
               timeoutId: null,
             }),
-          Math.random() * (MAX_WAIT - MIN_WAIT) + MIN_WAIT
+          Math.random() * (props.maxWait - props.minWait) + props.minWait
         ),
       };
     });
@@ -254,7 +224,7 @@ class ReactionTimeTest extends Component {
     const now = performance.now();
     const time = now - this.triggerTime;
 
-    this.setState((state) => {
+    this.setState((state, props) => {
       if (!state.roundActive) return null;
 
       const newState = {
@@ -265,14 +235,14 @@ class ReactionTimeTest extends Component {
       if (state.triggered) {
         // Click arrived after test triggered; round passed
         newState.roundFailed = false;
-        newState.resultTime = time;
         newState.times = [...state.times, time];
 
-        if (state.round < ROUNDS) {
+        if (state.round < props.rounds) {
+          // more rounds to go
           newState.round = state.round + 1;
         } else {
           // test complete; submit scores
-          submitTimes(null, newState.times); //TODO: user?
+          this.submitTimes(null, newState.times, this.timer); //TODO: user?
           newState.testActive = false;
           newState.round = null;
         }
@@ -287,6 +257,7 @@ class ReactionTimeTest extends Component {
   };
 
   render() {
+    console.log(this.state);
     const [status, message] = this.generateStatusAndMessage();
     return (
       <div className="ReactionTimeTest">
@@ -305,17 +276,35 @@ class ReactionTimeTest extends Component {
           >
             {message}
           </div>
+          {this.state.results && (
+            <ResultsPanel type="ReactionTimeTest" data={this.state.results} />
+          )}
         </Space>
       </div>
     );
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    // Fires (almost) immediately after newly triggered component renders. Use to set triggerTime
     if (this.state.triggered && !this.triggerTime) {
-      // Record triggerTime immediately after newly triggered component renders.
       this.triggerTime = performance.now();
     }
   }
+
+  componentWillUnmount() {
+    if (this.state.timeoutId) {
+      clearTimeout(this.state.timeoutId);
+    }
+  }
 }
+
+ReactionTimeTest.defaultProps = {
+  rounds: 5,
+  minWait: 1000, // milliseconds
+  maxWait: 5000,
+  // test settings
+  // minWait: 100, // milliseconds
+  // maxWait: 1000,
+};
 
 export default ReactionTimeTest;
