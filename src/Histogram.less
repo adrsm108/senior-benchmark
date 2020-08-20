@@ -1,0 +1,123 @@
+@import 'theme';
+
+@histogram-bar-fill-color: darken(@theme-light-gray, 10%);
+@histogram-bar-stroke-color: fade(shade(@histogram-bar-fill-color), 100%);
+@histogram-bar-stroke-width: 1px;
+@density-fill-color: fade(@theme-light-blue, 45%);
+@density-stroke-color: @theme-dark-blue;
+@density-stroke-width: 1px;
+
+@query-point-fill-color: @density-stroke-color;
+@query-mean-fill-color: @density-stroke-color;
+
+.histogram-title {
+  text-align: center;
+}
+
+div.plot-area {
+  display: flex;
+  justify-content: center;
+}
+
+.query-point {
+  fill: @query-point-fill-color;
+}
+
+.query-point.mean {
+  fill: tint(@query-point-fill-color, 25%);
+  stroke: @query-point-fill-color;
+  stroke-width: 1.5px;
+}
+
+.density-point {
+  fill: steelblue;
+}
+
+.root-svg {
+  //border: 1px solid black;
+}
+
+g.root-transform  {
+  visibility: visible;
+  pointer-events: visible;
+}
+
+div.title-and-switch {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  justify-content: space-between;
+
+  h4 {
+    font-size: 1.1em;
+    margin-bottom: 0;
+  }
+}
+
+.mouse-crosshair {
+  fill: @density-stroke-color;
+  stroke: none;
+}
+
+.vertical-line {
+  stroke: @density-stroke-color;
+}
+
+.density-area {
+  fill: @density-fill-color;
+  stroke: @density-stroke-color;
+  stroke-width: @density-stroke-width;
+  stroke-linejoin: round;
+}
+
+.histogram-bar {
+  stroke: @histogram-bar-stroke-color;
+  stroke-width: @histogram-bar-stroke-width;
+  fill: @histogram-bar-fill-color;
+}
+
+.x-axis-text {
+  text-anchor: end;
+}
+
+.settings-icon {
+  align-self: flex-end;
+  position: absolute;
+  font-size: larger;
+  //right: 25px;
+}
+
+.settings-content {
+  //min-width: 250px;
+  //width: fit-content;
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+}
+
+.bandwidth-slider {
+  width: 100%;
+}
+
+rect.interaction-panel {
+}
+
+.bandwidth-slider-label {
+  margin-top: 15px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+
+  span:nth-child(2) {
+    font-style: italic;
+  }
+}
+
+.Histogram {
+  width: fit-content;
+}
+
+.Histogram div.ant-card-body {
+  display: flex;
+  flex-flow: column wrap;
+}

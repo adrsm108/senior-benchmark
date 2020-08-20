@@ -1,10 +1,18 @@
 import React, {Component} from 'react';
-import './ClickTest.less';
-import {classConcat, dist2d, formatMilliseconds, mapLength, takeValues} from './utils';
+import './AimTest.less';
+import {
+  classConcat,
+  dist2d,
+  formatMilliseconds,
+  mapLength,
+  takeValues,
+} from './utils';
 import {Divider, Space, Table, Typography} from 'antd';
-import _ from 'lodash-es';
+import _ from 'lodash';
 
 const {Text, Title} = Typography;
+
+const ROUNDS = 5;
 
 function Target(props) {
   const {r, pos, rings, cr, ...rest} = props;
@@ -30,13 +38,13 @@ Target.defaultProps = {
   pos: [0, 0], // x, y location
   r: 50, // target radius
   rings: 3, // number of rings
-  cr: 4 // center radius
+  cr: 4, // center radius
 };
 
 function StartButton(props) {
   return (
     <svg x="50%" y="50%" className="StartButton">
-      <circle {...props} className="button-body"/>
+      <circle {...props} className="button-body" />
       <text className="button-text">{props.children}</text>
     </svg>
   );
@@ -47,13 +55,17 @@ const RESULTS_COLUMNS = [
     title: 'Position',
     children: [
       {title: 'Spawn', dataIndex: 'pos', render: ([x, y]) => `[${x}, ${y}]`},
-      {title: 'Click', dataIndex: 'clickPos', render: ([x, y]) => `[${x}, ${y}]`},
+      {
+        title: 'Click',
+        dataIndex: 'clickPos',
+        render: ([x, y]) => `[${x}, ${y}]`,
+      },
       {
         title: 'Distance',
         key: 'elapsed',
-        render: (text, row) => dist2d(row.pos, row.clickPos).toFixed(3)
-      }
-    ]
+        render: (text, row) => dist2d(row.pos, row.clickPos).toFixed(3),
+      },
+    ],
   },
   {
     title: 'Time',
@@ -63,32 +75,48 @@ const RESULTS_COLUMNS = [
       {
         title: 'Elapsed',
         key: 'elapsed',
-        render: (text, row) => formatMilliseconds(row.clickTime - row.spawnTime)
-      }
-    ]
-  }
+        render: (text, row) =>
+          formatMilliseconds(row.clickTime - row.spawnTime),
+      },
+    ],
+  },
 ];
 
-class ClickTest extends Component {
+class AimTest extends Component {
   constructor(props) {
     super(props);
-    this.testLog = [];
+
+    /*
+    this.triggerTime = null;
+    this.state = {
+      testActive: false,
+      roundActive: false,
+      roundFailed: false,
+      triggered: false,
+      resultTime: null,
+      timeoutId: null,
+      round: null,
+      times: [],
+    };
+    * */
+
     this.targetSpawnTime = null;
     this.testArea = React.createRef();
     this.state = {
       testActive: false,
-      target: null,
-      remainingTargets: null,
-      testTimeout: null,
-      results: null
+      round: null,
+      targetPos: null,
+      results: null,
     };
   }
 
+  /*
   componentDidMount() {
     this.setState({
-      target: this.createTarget(true)
+      target: this.createTarget(true),
     });
   }
+*/
 
   componentWillUnmount() {
     if (!this.state.testTimeout) return;
@@ -98,71 +126,88 @@ class ClickTest extends Component {
     });
   }
 
-  createTarget = () => {
-    return {
-      pos: this.testArea.current
-        ? takeValues(
+  spawnRandomTarget = () => {
+    this.targetSpawnTime = null;
+    return this.testArea.current
+      ? takeValues(
           this.testArea.current,
           ['clientWidth', 'clientHeight'],
           (x) => Math.floor(Math.random() * x) // integer coordinates
         )
-        : [0, 0]
-    };
+      : [0, 0];
   };
+
+  // createTarget = () => {
+  //   return {
+  //     pos: this.testArea.current
+  //       ? takeValues(
+  //           this.testArea.current,
+  //           ['clientWidth', 'clientHeight'],
+  //           (x) => Math.floor(Math.random() * x) // integer coordinates
+  //         )
+  //       : [0, 0],
+  //   };
+  // };
 
   handleTargetClick = ({nativeEvent: event}) => {
     const now = performance.now();
-    if (this.state.target.clickTime) {
-      console.log('duplicate click on target');
-      return;
-    }
-    this.testLog.push(
-      Object.assign(this.state.target, {
-        spawnTime: this.targetSpawnTime,
-        clickPos: [event.offsetX, event.offsetY],
-        clickTime: now
-      })
-    );
+    const targetSpawnTime = this.targetSpawnTime;
+    if (!targetSpawnTime) return; // indicates duplicate click on target, since we clear targetSpawnTime in this function.
+
     this.targetSpawnTime = null;
-    this.setState((state) => {
-      return state.remainingTargets > 0
-        ? {
-          remainingTargets: state.remainingTargets - 1,
-          testActive: true,
-          target: this.createTarget()
-        }
-        : {
-          testActive: false,
-          remainingTargets: null,
-          target: null,
-          results: this.testLog
-        };
+    this.setState((state, props) => {
+      const newState = {
+        testLog: [
+          ...state.testLog,
+          {
+            spawnPos: state.targetPos,
+            spawnTime: targetSpawnTime,
+            clickPos: [event.offsetX, event.offsetY],
+            clickTime: now,
+          },
+        ],
+      };
+      if (state.round < props.rounds) {
+        newState.round = state.round + 1;
+        newState.targetPos = this.spawnRandomTarget();
+      } else {
+        newState.testActive = false;
+        newState.round = null;
+        newState.targetPos = null;
+        console.log('Test done', newState.testLog);
+      }
+      return newState;
     });
   };
 
   handleTestStart = () => {
-    if (this.testActive) return;
-    console.log('starting test.');
-    this.testLog = [];
-    this.targetSpawnTime = null;
-    this.setState({
-      testActive: true,
-      remainingTargets: this.props.testLength - 1,
-      target: this.createTarget(),
-      results: null
-    });
+    this.setState((state) =>
+      state.testActive
+        ? null
+        : {
+            testActive: true,
+            round: 1,
+            targetPos: this.spawnRandomTarget(),
+            testLog: [],
+          }
+    );
   };
 
   render() {
-    const result = (
-      <div className="ClickTest" style={this.props.style}>
+    return (
+      <div className="AimTest" style={this.props.style}>
         <Space direction="vertical">
           <Title className="main-title">Click Test</Title>
           <div
             className="test-area-container"
             style={{
               padding: this.props.targetRadius,
-              ..._.pick(this.props, ['minWidth', 'maxWidth', 'minHeight', 'maxHeight'])
+              ..._.pick(this.props, [
+                'minWidth',
+                'maxWidth',
+                'minHeight',
+                'maxHeight',
+              ]),
             }}
           >
             <svg
@@ -173,11 +218,14 @@ class ClickTest extends Component {
               {this.state.testActive ? (
                 <Target
                   onClick={this.handleTargetClick}
-                  pos={this.state.target.pos}
+                  pos={this.state.targetPos}
                   r={this.props.targetRadius}
                 />
               ) : (
-                <StartButton onClick={this.handleTestStart} r={this.props.targetRadius}>
+                <StartButton
+                  onClick={this.handleTestStart}
+                  r={this.props.targetRadius}
+                >
                   Start!
                 </StartButton>
               )}
@@ -185,7 +233,7 @@ class ClickTest extends Component {
           </div>
           <Space>
             {this.state.testActive ? (
-              <Text key="remaining">Remaining: {this.state.remainingTargets}</Text>
+              <Text key="remaining">Remaining: {this.props.rounds - this.state.round}</Text>
             ) : (
               <Text key="status">Test Inactive</Text>
             )}
@@ -201,24 +249,26 @@ class ClickTest extends Component {
               columns={RESULTS_COLUMNS}
               dataSource={this.state.results}
               rowKey="spawnTime"
-            />
+            />,
           ]}
         </Space>
       </div>
     );
-    if (this.state.target && !this.targetSpawnTime) {
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.state.testActive && !this.targetSpawnTime) {
       this.targetSpawnTime = performance.now();
     }
-    return result;
   }
 }
 
-ClickTest.defaultProps = {
+AimTest.defaultProps = {
   minWidth: 450,
   maxWidth: 1000,
   height: 500,
   targetRadius: 50,
-  testLength: 5
+  rounds: ROUNDS,
 };
 
-export default ClickTest;
+export default AimTest;

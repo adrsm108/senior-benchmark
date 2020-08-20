@@ -8,20 +8,151 @@
 
 //------------ PRIVATE FUNCTIONS  ------------//
 
-// Identity function (nice version so webstorm doesn't complain about arity)
-function identity(x, ..._) {
-  return x;
-}
+// import * as d3 from 'd3';
+// import {sum as d3Sum, mean as d3Mean} from 'd3';
+import * as d3 from 'd3';
+
+export const identity = (x) => x;
 
 //------------ EXPORTED FUNCTIONS  ------------//
 
-/* Returns space-separated string concatenation of truthy arguments.
+// Returns f if it is a function, the identity fn otherwise.
+/**
+ * Returns <tt>f</tt> if it is a function, or the identity function otherwise.
+ * @param f
+ * @returns {function}
+ */
+export function orIdentity(f) {
+  return typeof f === 'function' ? f : identity;
+}
 
-Useful for conditionally assigning classes.
-classConcat(cond1 && class1, cond2 && class2, ...) ~~> string of classes whose associated conditions are true.
-*/
+/**
+ * Returns the functional composition of its arguments.
+ * @example
+ * comp(f, g, h) // equivalent to (x) => f(g(h(x)))
+ * @param {function} fns
+ * @returns {function}
+ */
+export function comp(...fns) {
+  return fns.reduceRight((g, f) => (...x) => f(g(...x)));
+}
+
+/**
+ * Returns the functional right-composition of its arguments.
+ *
+ * @example
+ * rightComp(f, g, h) // equivalent to (x) => h(g(f(x)))
+ * @param {function} fns
+ * @returns {function}
+ */
+export function rightComp(...fns) {
+  return fns.reduce((g, f) => (...x) => f(g(...x)));
+}
+
+/**
+ * Returns the first element of <tt>a</tt>.
+ * @param {*[]} arr
+ * @returns {*}
+ */
+export function first(arr) {
+  return arr[0];
+}
+
+/**
+ * Returns the second element of <tt>a</tt>.
+ * @param {*[]} arr
+ * @returns {*}
+ */
+export function second(arr) {
+  return arr[1];
+}
+
+/**
+ * Returns the last element of <tt>a</tt>.
+ * @param {*[]} arr
+ * @returns {*}
+ */
+export function last(arr) {
+  return arr[arr.length - 1];
+}
+
+/**
+ * Returns copy of <tt>a</tt> without the first element.
+ * @param {*[]} arr
+ * @returns {*[]}
+ */
+export function rest(arr) {
+  return arr.slice(1);
+}
+
+/**
+ * Returns copy of <tt>a</tt> without the last element.
+ * @param {*[]} arr
+ * @returns {*[]}
+ */
+export const most = (arr) => arr.slice(0, -1);
+
+/**
+ * Returns !x
+ * @param x
+ * @returns {boolean}
+ */
+export const not = (x) => !x;
+
+/**
+ * Function that behaves like the || operator, returning its first truthy argument, or its last argument if none are truthy.
+ * @param args
+ * @returns {*}
+ */
+export const or = (...args) => args.find(identity) || last(args);
+
+/**
+ * Returns a function that returns its first truthy argument, or <tt>def</tt> if none exists.
+ * @param def
+ * @returns {function(...[*]): *}
+ */
+export const orDefault = (def) => (...args) => or(...args, def);
+
+/**
+ * Function that behaves like the && operator, returning its first falsy argument, or its last argument if none are falsy.
+ * @param args
+ * @returns {*}
+ */
+export const and = (...args) => args.find(not) && last(args);
+
+/**
+ * Returns a function that returns its first falsy argument, or <tt>def</tt> if none exists.
+ * @param def
+ * @returns {function(...[*]): *}
+ */
+export const andDefault = (def) => (...args) => and(...args, def);
+
+/**
+ * Returns the function that extracts the item at key <tt>k</tt> from its argument.
+ * If <tt>k</tt> is a negative numerical index, <tt>part(k)</tt> returns a function to extract <tt>k</tt>th from last item.
+ * @param {string|number} k The string or index to be used as a key.
+ * @returns {function}
+ */
+export function part(k) {
+  return k < 0 ? (a) => a[a.length + k] : (a) => a[k];
+}
+
+export const times = (c) => (x) => x * c;
+export const plus = (c) => (x) => x + c;
+
+/** Returns space-separated string concatenation of truthy arguments.
+
+ Useful for conditionally assigning classes;
+ <tt>classConcat(cond1 && class1, cond2 && class2, ...)</tt> 
+ returns the string of classes whose associated conditions are true.
+ * @param {*} classes
+ * @return string
+ */
 export function classConcat(...classes) {
-  return classes.reduce((classList, item) => (item ? `${classList} ${item}` : classList), '');
+  return classes.reduce(
+    (classList, item) => (item ? classList + ' ' + item : classList),
+    ''
+  );
 }
 
 /* Group items in a collection using a function.
@@ -57,37 +188,77 @@ export function tally(coll, f = identity) {
   return map;
 }
 
-// 2D Euclidean distance
-export function dist2d([x0, y0], [x1, y1]) {
-  return Math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2);
+/**
+ * n dimensional euclidean distance.
+ * @param {number[]} p0
+ * @param {number[]} p1
+ * @returns {number}
+ */
+export function dist(p0, p1) {
+  if (p0.length !== p1.length) {
+    throw new TypeError(`Arguments ${p0} and ${p1} have unequal dimension.`);
+  }
+  return Math.hypot(...p0.map((pi, i) => pi - p1[i]));
 }
 
-/*
-Returns a string representation of the given number of milliseconds in hh:mm:ss:fff format.
-Second argument can be used to specify the minimum number of segments in the result. With the default value (2),
-hours and minutes are omitted as appropriate.
+/**
+ * Euclidean distance optimized for R2.
+ * @param {number[]} p0
+ * @param {number[]} p1
+ * @returns {number}
+ */
 
-formatMilliseconds(500) ~~> "00:500"
-formatMilliseconds(5000) ~~> "05:000"
-formatMilliseconds(500000) ~~> "08:20:000"
-formatMilliseconds(5000000) ~~> "01:23:20:000"
+export function dist2d(p0, p1) {
+  return Math.hypot(p0[0] - p1[0], p0[1] - p1[1]);
+}
 
-formatMilliseconds(500, 1) ~~> "500"
-formatMilliseconds(500, 3) ~~> "00:00:500"
-formatMilliseconds(500, 4) ~~> "00:00:00:500"
-* */
+/**
+ * Returns the millisecond duration <tt>ms</tt> as a timestring in the format <tt>DDd hh:mm:ss:lll</tt>.
+ *
+ * The optional argument minSegs can be used to change the minimum number of segments in the output.
+ * By default, the result consists of two segments (seconds and milliseconds), with minutes, hours, and days
+ * hidden unless their values are nonzero.
+ *
+ * In general, enough segments are included to fully describe the given duration.
+ * Setting the optional argument overflow to false will prevent the inclusion of additional segments, ensuring
+ * the result has exactly minSegs segments (taken from right to left).
+ *
+ * @param {number} ms - Number of milliseconds.
+ * @param {number} [minSegs=2] - Minimum number of sections in returned string.
+ * @param {boolean} [overflow=true] - Whether to add additional sections as needed.
+ * @returns {string} - A string in <tt>...dd:hh:mm:ss:lll</tt> format.
+ *
+ * @example
+ * formatMilliseconds(1234) // '01.234'
+ * formatMilliseconds(-123456) // '-02:03.456'
+ * formatMilliseconds(123) // '00.123'
+ * formatMilliseconds(123, 1) // '123'
+ * formatMilliseconds(123, 3) // '00:00.123'
+ * formatMilliseconds(0.125, 0) // ''
+ * formatMilliseconds(0.125, 1) // '000'
+ * formatMilliseconds(123456, 2) // '02:03.456'
+ * formatMilliseconds(123456, 2, false) // '03.456'
+ * formatMilliseconds(123456, 4, false) // '00:02:03.456'
+ */
+export function formatMilliseconds(ms, minSegs = 2, overflow = true) {
+  const mods = [1000, 60, 60, 24]; // modulus for ms, sec, min, hr
+  const seps = ['', '.', ':', ':']; // separator characters
+  const digits = (n) =>
+    // returns # of decimal digits in integer part of n, or 0 if the integer part of n is 0.
+    (n = Math.trunc(n)) && comp(Math.floor, Math.log10, Math.abs)(n) + 1;
 
-export function formatMilliseconds(ms, minSegments = 2) {
-  const sec = Math.floor(ms / 1000);
-  const min = Math.floor(sec / 60);
-  const hr = Math.floor(min / 60);
+  const [t, str] = mods.reduce(
+    ([t, str], m, i) => [
+      Math.floor(t / m),
+      ((overflow && (t = Math.floor(t % m))) || minSegs > i
+        ? t.toString().padStart(digits(m - 1), '0') + seps[i]
+        : '') + str,
+    ],
+    [Math.abs((ms = Math.round(ms))), '']
+  );
+
   return (
-    (hr || minSegments >= 4 ? hr.toString().padStart(2, '0') + ':' : '') +
-    (min || minSegments >= 3 ? (min % 60).toString().padStart(2, '0') + ':' : '') +
-    (sec || minSegments >= 2 ? (sec % 60).toString().padStart(2, '0') + ':' : '') +
-    Math.floor(ms % 1000)
-      .toString()
-      .padStart(3, '0')
+    (ms < 0 ? '-' : '') + (t || minSegs >= 5 ? t.toFixed() + 'd ' : '') + str
   );
 }
 
@@ -121,19 +292,25 @@ export function repeatedTiming(n, f, ...args) {
     trials: n,
     minTime: Math.min(...times),
     maxTime: Math.max(...times),
-    stdDev: Math.sqrt(times.reduce((s, t) => s + (t - avgTime) ** 2, 0) / (n - 1)),
+    stdDev: Math.sqrt(
+      times.reduce((s, t) => s + (t - avgTime) ** 2, 0) / (n - 1)
+    ),
     result,
   };
 }
 
-/* Maps a function over a range of integers without generating an intermediate array
-mapLength(n, f) ~~> [ f(0), f(1), ..., f(floor(n-1)) ] if n >= 1
-                    [ f(0), f(-1), ..., f(ceil(n+1)) ] if n <= -1
-                    [ ]                                otherwise
-Saves memory over range(n).map(f)
-*/
+/**
+ * Returns the result of mapping f over a range of integers.
+ * @param {number} n -- a number
+ * @param {function(number)} f -- a function
+ * @returns {*[]} [f(0), f(1), ..., f(floor(n-1))] if n >= 0 <br/>
+ * [f(0), f(-1), ..., f(ceil(n+1))] if n < 0
+ */
 export function mapLength(n, f) {
-  return Array.from({length: Math.abs(n)}, n >= 0 ? (_, i) => f(i) : (_, i) => f(-i));
+  return Array.from(
+    {length: Math.abs(n)},
+    n >= 0 ? (_, i) => f(i) : (_, i) => f(-i)
+  );
 }
 
 /* Gets the specified properties of an object as an array, with optional transformation.
@@ -143,3 +320,142 @@ export function mapLength(n, f) {
 export function takeValues(obj, keys, f = identity) {
   return keys.map((k) => f(obj[k], k));
 }
+
+export function total(array) {
+  return array.length ? array.reduce((s, x) => s + x, 0) : Number.NaN;
+}
+
+export function mean(array) {
+  return array.length ? total(array) / array.length : Number.NaN;
+}
+
+export function clamp(n, nMin, nMax) {
+  if (nMin > nMax) {
+    throw new RangeError(`[${nMin}, ${nMax}] is not a valid interval.`);
+  }
+  return Math.min(Math.max(n, nMin), nMax);
+}
+
+export function chop(n, epsilon = Number.EPSILON) {
+  return Math.abs(n) < epsilon ? 0 : n;
+}
+
+// Mathematical modulo operation. Sign of result is determined by second argument: mod(x, n) is in [0, n) for n > 0, or
+// (n, 0] for n < 0. mod(x, 0) returns NaN for all x.
+function mod(x, n) {
+  const m = x % n;
+  return m + (m && x * n < 0 ? n : 0); // add n when m is not 0 and x and n have different signs
+}
+
+// modChop(x, n, ε) ~~> 0 if mod(x, n) ∈ [0, ε] ∪ [n − ε, n),
+//                      mod(x, n) otherwise.
+function modChop(x, n, epsilon = Number.EPSILON) {
+  const m = mod(x, n);
+  return Math.abs(m) <= epsilon || Math.abs(m - n) <= epsilon ? 0 : m;
+}
+
+// Attempts to determine the number of fixed digits of decimal precision returned by performance.now();
+// This may be a nonpositive or even negative integer, depending on the coarseness of the timer.
+function getPrecision(x, maxPrec = 2) {
+  if (maxPrec < 0) throw new RangeError('maxPrec must be nonnegative.');
+  if (x === 0) return Number.NaN;
+
+  const eps = 10 ** -maxPrec; // precision threshold
+  x = Math.abs(x); // ensure x is positive
+  // we want the greatest integer k such that x ≡ 0 (mod 10^k) Clearly k is bounded above by log10(x).
+  // Furthermore, if x has a nonzero fractional part, then k <= log10(x mod 1).
+  let k = Math.round(Math.log10(modChop(x, 1, eps) || x));
+  while (modChop(x, 10 ** k, eps) && -maxPrec <= k) {
+    k--;
+  }
+
+  return -k || 0;
+}
+
+// Attempts to measure the resolution of performance.now() in milliseconds.
+// Returns an object with keys {resolution, precision}.
+function getTimerInfo(minPrec = 0, maxPrec = 2) {
+  let res = Number.POSITIVE_INFINITY;
+  for (
+    let i = 0, m = 0, n = 0;
+    i < 3 && (i + 1) * (n - m) < 1000; // repeat 3 times or until total computation time risks exceeding 1000ms.
+    i++, res = Math.min(n - m, res)
+  ) {
+    m = performance.now();
+    while (m === (n = performance.now())) {} // wait for performance.now() to change value
+  }
+
+  return {
+    resolution: res,
+    precision: clamp(getPrecision(res, maxPrec), minPrec, maxPrec),
+  };
+}
+
+// log argument, then return it
+export function echo(arg, ...rest) {
+  console.log(...rest, arg);
+  return arg;
+}
+
+// bisection method for finding y coordinate on a path at a particular x
+// Given:
+//    path: DOM node for an svg path element tracing a parametric path
+//      p(t) = { x: x(t), y: y(t) }, 0 <= t <= path.totalLength(), where x(t) is monotonic,
+//    mx: a real number
+// Returns: the point p(t*) = { x: x(t*), y: y(t*) }, where t* is the integer minimizing |x(t*) - mx|.
+/* TODO: You could probably implement Newton's method if you could figure out how d3 generates
+    its control points for the spline. That might be cool. */
+export function getPointOnPathFromX(path, mx) {
+  const p = (t) => path.getPointAtLength(t);
+  let t, pt;
+  let a = 0,
+    b = path.getTotalLength();
+  if (p(b).x - p(a).x < 0) [a, b] = [b, a]; // ensure x(a) <= x(b)
+  while (true) {
+    t = Math.floor((a + b) / 2); // t is an integer
+    pt = p(t);
+
+    if ((a === t || b === t) && pt.x !== mx) /* close enough! */ break;
+    else if (pt.x > mx) b = t;
+    else if (pt.x < mx) a = t;
+    else break; //position found
+  }
+
+  return pt;
+}
+
+
+// Kernel density estimator for binned frequency data
+export function binnedKDE(data, kernel, bandwidth, normalize = true) {
+  let K;
+  K =
+    typeof kernel === 'function'
+      ? kernel
+      : kernel === 'uniform'
+      ? (x) => (Math.abs(x) <= 1 ? 0.5 : 0)
+      : kernel === 'triangular'
+      ? (x) => ((x = Math.abs(x)) <= 1 ? 1 - x : 0)
+      : kernel === 'gaussian'
+      ? (x) => Math.exp(-0.5 * x ** 2) / Math.sqrt(2 * Math.PI)
+      : kernel === 'cosine'
+      ? (x) =>
+          Math.abs(x) <= 1 ? 0.25 * Math.PI * Math.cos(0.5 * Math.PI * x) : 0
+      : kernel === 'sigmoid'
+      ? (x) => 1 / (Math.PI * Math.cosh(x))
+      : (x) => (Math.abs(x) <= 1 ? 0.75 * (1 - x ** 2) : 0); // Default quadratic
+
+  if (normalize) {
+    const kde = mapLength(data.length, (i) =>
+      d3.mean(data, (freq, j) => freq * K((i - j) / bandwidth))
+    );
+    return kde.map(times(1 / d3.sum(kde)));
+  } else {
+    mapLength(
+      data.length,
+      (i) =>
+        d3.mean(data, (freq, j) => freq * K((i - j) / bandwidth)) / bandwidth
+    );
+  }
+}
+
+export {mod, modChop, getTimerInfo, getPrecision};

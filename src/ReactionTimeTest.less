@@ -1,11 +1,24 @@
-@import '~antd/dist/antd.less';
+//@import '~antd/dist/antd.less';
+@import 'mixins';
+@import 'theme';
+
+@content-background: @theme-light-gray;
+
+@round-failed-color: @theme-orange;
+@between-rounds-color: @theme-blue;
+@triggered-color: @theme-green;
+@round-active-color: @theme-pink;
+@test-complete-color: @theme-blue;
+@test-unstarted-color: @theme-gray;
+
+@border-faint: 1px solid rgba(255, 255, 255, 0.3);
+@border-bright: 1px solid rgba(255, 255, 255, 0.5);
 
 .ReactionTimeTest {
-  background: #fff;
+  background: @content-background;
   padding: 32px 0;
   margin: 0 auto;
   width: 100%;
-  max-width: 850px;
   min-width: fit-content;
 
   display: flex;
@@ -27,35 +40,144 @@
 
 .reaction-area {
   color: white;
-  min-height: 500px;
+  min-height: 600px;
   text-align: center;
-  font-size: 5em;
   cursor: pointer;
   user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
 }
 
-.failed {
-  background: orange;
+.round-failed {
+  background: @round-failed-color;
 }
 
-.complete {
-  background: teal;
+.between-rounds {
+  background: @between-rounds-color;
 }
 
 .triggered {
-  background: limegreen;
+  background: @triggered-color;
 }
 
-.active {
-  background: red;
+.round-active {
+  background: @round-active-color;
 }
 
-.inactive {
-  background: gray;
+.test-complete {
+  background: @test-complete-color;
 }
 
-.start-button {
-  display: block;
-  margin: 0 auto;
+.test-unstarted {
+  background: @test-unstarted-color;
+
+  .reaction-area-message {
+    animation: fade-in 1s ease 1s both;
+  }
+}
+
+.reaction-area-message {
+  .message-main {
+    font-size: 5em;
+    text-transform: uppercase;
+  }
+
+  .message-subtitle {
+    display: block;
+    color: white;
+    font-size: 2.5em;
+  }
+
+  .message-small-subtitle {
+    font-size: 1.3em;
+    font-style: italic;
+    font-weight: lighter;
+    padding-top: 10px;
+  }
+}
+
+.result-time {
+  padding-top: 10px;
+  min-width: fit-content;
+
+  div.ant-statistic-content {
+    font-size: 6em;
+    color: white;
+  }
+
+  span.ant-statistic-content-prefix {
+    font-size: 0.5em;
+  }
+
+  span.ant-statistic-content-value {
+    font-size: 1em;
+  }
+
+  span.ant-statistic-content-value-decimal {
+    font-size: 0.7em;
+  }
+
+  span.ant-statistic-content-suffix {
+    font-size: 0.7em;
+  }
+
+  &.final-result {
+    span.ant-statistic-content-value {
+      font-weight: bold;
+    }
+  }
+}
+
+.results-summary {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 32px 0;
+
+  .set-responsive(flex-flow; {
+    xs: column nowrap;
+    md: row-reverse;
+  });
+
+  .ScoreTable {
+    flex-grow: 0;
+    margin: 0;
+    display: inline-block;
+  }
+
+  .big-stats {
+    //margin-left: 24px;
+    min-width: max-content;
+
+    .stat-label {
+      font-size: 1.2rem;
+      font-weight: normal;
+      margin-bottom: -24px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .result-time {
+      text-align: left;
+    }
+  }
+
+  .divider {
+    margin: 24px 0;
+    border-right: none;
+    border-top: @border-bright;
+    width: 100%;
+    .screen-size(md, all; {
+      border-right: @border-bright;
+      margin: 0 24px;
+      align-self: stretch;
+      width: auto;
+    });
+  }
 }
 

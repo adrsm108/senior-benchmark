@@ -1,0 +1,193 @@
+@import '~antd/dist/antd.less';
+
+@screen-xxl-max:none;
+@screen-xs-min:none;
+
+.getw(@_; all) {
+  return: none;
+}
+
+.getw(@_; @size) when not (iskeyword(@size)) {
+  return: @size;
+}
+
+.getw(@param; @size) when (default()) {
+  @varp: 'screen-@{size}-@{param}';
+  return: @@varp;
+}
+
+.synth-query(@size1; @size2; @targ) {
+  @valmin: .getw(min; @size1)[];
+  @valmax: .getw(max; @size2)[];
+  return: %(~'only screen%s%s',
+    if((@valmin = none) or (@targ = max); ''; ' and (min-width: @{valmin})'),
+    if((@valmax = none) or (@targ = min); ''; ' and (max-width: @{valmax})'));
+}
+
+
+.screen-size(@size; @rules) when (length(@size) = 2) {
+  @q: .synth-query(extract(@size, 1); extract(@size, 2); only)[];
+  @media @q {
+    @rules();
+  }
+}
+
+
+.screen-size(@size; @rules) when (default()) {
+  @q: .synth-query(@size; @size; only)[];
+  @media @q {
+    @rules();
+  }
+}
+
+
+.screen-size(@size; @_; @rules) when (length(@size) = 2) {
+  @q: .synth-query(extract(@size, 1); extract(@size, 2); only)[];
+  @media @q {
+    @rules();
+  }
+}
+
+
+.screen-size(@size; @targ; @rules) when (default()) {
+  @q: .synth-query(@size; @size; @targ)[];
+  @media @q {
+    @rules();
+  }
+}
+
+.set-responsive(@prop; @settings) when (length(@prop) = 1) {
+  each(@settings, {
+    .screen-size(@key; min; {
+      @{prop}: @value
+    });
+  });
+}
+
+.set-responsive(@props; @settings) when (length(@props) > 1) {
+  each(@settings, {
+    .screen-size(@key; min; {
+      each(@props, .(@prop, @i) {
+        @{prop}: extract(@value, @i)
+      });
+    });
+  });
+}
+
+.set-responsive(@prop; @targ; @settings) when (length(@prop) = 1) {
+  each(@settings, {
+    .screen-size(@key; @targ; {
+      @{prop}: @value
+    });
+  });
+}
+
+.set-responsive(@props; @targ; @settings) when (length(@props) > 1) {
+  each(@settings, {
+    .screen-size(@key; @targ; {
+      each(@props, .(@prop, @i) {
+        @{prop}: extract(@value, @i)
+      });
+    });
+  });
+}
+
+.stagger-animation(@anim; @delay: 100ms; @count: 10; @reverse: false) {
+  @d: unit(convert(@delay; ms); ms);
+  @base-delay: unit(convert(.nth-number(@anim; 2; 0)[]; ms); ms);
+  @pseudo-class: if(@reverse; nth-last-child; nth-child);
+
+  .loop(@i) when (@i > 0) {
+    &:@{pseudo-class}(@{i}) {
+      animation-delay: @d * (@i - 1) + @base-delay;
+    }
+    .loop(@i - 1);
+  }
+
+  animation: @anim;
+  .loop(unit(@count));
+}
+
+
+.stagger-child-animation(@child-selector; @anim; @delay: 100ms; @count: 10; @reverse: false) {
+  @d: unit(convert(@delay; ms); ms);
+  @base-delay: unit(convert(.nth-number(@anim; 2; 0)[]; ms); ms);
+  @pseudo-class: if(@reverse; nth-last-of-type; nth-of-type);
+  @child: ~'@{child-selector}';
+
+  .loop(@i) when (@i > 0) {
+    &:@{pseudo-class}(@{i}) {
+      animation-delay: @d * (@i - 1) + @base-delay;
+    }
+    .loop(@i - 1);
+  }
+
+  @{child} {
+    animation: @anim;
+    .loop(unit(@count));
+  }
+}
+
+.nth-number(@list; @n; @default: none) when (@n > 0){
+
+  @len: length(@list);
+
+  .loop(@i; @k) when (@i <= @len) and (@k = @n - 1) {
+
+    .return(@item) when (isnumber(@item)) {
+      @return: @item;
+    }
+
+    .return(@item) when (default()) {
+      .loop(@i + 1; @k)
+    }
+
+    .return(extract(@list; @i));
+  }
+
+  .loop(@i; @k) when (@i <= @len) and (@k < @n - 1) {
+    .loop(@i + 1; if(isnumber(extract(@list; @i)); @k + 1; @k));
+  }
+
+  .loop(@i; @k) when (default()) {
+    @return: @default;
+  }
+
+  .loop(1; 0);
+}
+
+.nth-number(@list; @n; @default: none) when (@n < 0) {
+
+  .loop(@i; @k) when (0 < @i) and (@k = abs(@n) - 1) {
+
+    .return(@item) when (isnumber(@item)) {
+      @return: @item;
+    }
+
+    .return(@item) when (default()) {
+      .loop(@i - 1; @k)
+    }
+
+    .return(extract(@list; @i));
+  }
+
+  .loop(@i; @k) when (0 < @i) and (@k < abs(@n) - 1) {
+    .loop(@i - 1; if(isnumber(extract(@list; @i)); @k + 1; @k));
+  }
+
+  .loop(@i; @k) when (default()) {
+    @return: @default;
+  }
+
+  .loop(length(@list); 0);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+

@@ -1,33 +1,48 @@
-@import '~antd/dist/antd.less';
+//@import '~antd/dist/antd.less';
+@import './theme';
 
-@header-color: #001529;
-@footer-color: @header-color;
+//@header-background: @theme-dark;
+@header-background: @theme-darkest-blue;
+@header-color: white;
+@content-layout-background: @theme-light-gray;
+@footer-background: @content-layout-background;
+@footer-color: black;
+
 
 #app-layout {
   min-height: 100vh;
 }
 
 #app-header {
-  background: @header-color;
+  background: @header-background;
   height: fit-content;
   padding: 24px 32px;
 
   h1 {
-    color: #fff;
-    font-size: 4.3em;
-    //font-weight: bold;
+    color: @header-color;
+    font-size: 4.3rem;
     margin-bottom: 0;
+    font-weight: normal;
+    text-transform: uppercase;
   }
 }
 
 #app-footer {
-  color: #fff;
+  background: @footer-background;
+  color: @footer-color;
   padding: 10px 32px;
-  background: @footer-color;
   font-style: italic;
+  justify-content: center;
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 #content-layout {
+  background: @content-layout-background;
   padding: 0 24px;
 }
 
