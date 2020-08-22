@@ -15,6 +15,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-http-to-https": "^1.1.4",
+    "gh-pages": "^3.1.0",
     "lodash": "^4.17.19",
     "mariadb": "^2.4.2",
     "nodemon": "^2.0.4",
@@ -31,8 +32,11 @@
     "start-app": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "node node_modules/gh-pages/bin/gh-pages-clean && npm run build && node backupDatabase.js testdata/senior_benchmark_testdata_deployed.sql",
+    "deploy": "node deploy.js"
   },
+  "homepage": "https://seniorbenchmark.fun",
   "eslintConfig": {
     "extends": "react-app"
   },

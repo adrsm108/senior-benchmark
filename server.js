@@ -1,16 +1,20 @@
-const env = require('./env.json');
-const _ = require('lodash');
+#!/usr/bin/env/node
+const mapValues = (obj, f) =>
+  Object.fromEntries(Object.entries(obj).map(([key, val]) => [key, f(val)]));
 
-const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || 3000;
+const env = require('./env.json');
+const https = require('https');
+const fs = require('fs');
 
 const express = require('express');
 const app = express();
 
 const mariadb = require('mariadb');
-const pool = mariadb.createPool({...env['pool'], multipleStatements: true});
-const tabIds = _.mapValues(env['tables'], pool.escapeId);
+const pool = mariadb.createPool({...env.pool, multipleStatements: true});
+const escapedTables = mapValues(env.tables, pool.escapeId); // escape table ids so we can directly embed them in queries
+const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 
+if (env.production) app.use(redirectToHTTPS([], []));
 app.use(express.static('build'));
 app.use(express.json());
 
@@ -34,7 +38,7 @@ app.get('/api/random-int', function (req, res) {
 
 app.get('/api/reaction-time', (req, res) => {
   const {id = null} = req.query;
-  console.log('test got id', id);
+  if (!env.production) console.log('test got id', id);
   pool
     .query('CALL summarizeReactionTime(?);', [id])
     .then((results) => {
@@ -47,8 +51,7 @@ app.get('/api/reaction-time', (req, res) => {
           { query metadata },
         ]
       * */
-
-      console.log('success: ', results);
+      if (!env.production) console.log('success: ', results);
       const [[globalSummary], [binStats], histData, [querySummary]] = results;
       const ret = {
         globalSummary,
@@ -85,15 +88,12 @@ app.post('/api/reaction-time', (req, res) => {
       // noinspection SqlResolve
       conn
         .query(
-          `INSERT INTO ${tabIds['reaction-time']}
+          `INSERT INTO ${escapedTables['reaction-time']}
           (user, t1, t2, t3, t4, t5, resolution) VALUE (?, ?, ?, ?, ?, ?, ?);`,
           [user, ...times, resolution]
         )
         .then((queryRes) => {
-          console.log(
-            queryRes
-            // Array.from(queryRes) // Array.from strips metadata
-          );
+          if (!env.production) console.log(queryRes);
           res.json({insertId: queryRes.insertId});
           return conn.end();
         })
@@ -110,6 +110,19 @@ app.post('/api/reaction-time', (req, res) => {
     });
 });
 
-app.listen(port, host, () => {
-  console.log(`Listening at: http://${host}:${port}`);
-});
+const host = process.env.HOST || 'localhost';
+const port = process.env.PORT || (env.production ? 443 : 3000);
+if (env.production) {
+  https
+    .createServer(mapValues(env.httpsServer, fs.readFileSync), app)
+    .listen(port, () => {
+      console.log(`Listening on https at port ${port}`);
+    });
+  app.listen(80, () => {
+    console.log(`Listening on http at port 80`);
+  })
+} else {
+  app.listen(port, host, () => {
+    console.log(`Listening at: http://${host}:${port}`);
+  });
+}
