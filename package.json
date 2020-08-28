@@ -15,8 +15,10 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-http-to-https": "^1.1.4",
+    "express-mysql-session": "^2.1.4",
     "lodash": "^4.17.19",
     "mariadb": "^2.4.2",
+    "mysql": "^2.18.1",
     "nodemon": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -55,6 +57,7 @@
     "bracketSpacing": false
   },
   "devDependencies": {
-    "cross-env": "^7.0.2"
+    "cross-env": "^7.0.2",
+    "express-session": "^1.17.1"
   }
 }
