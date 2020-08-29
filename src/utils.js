@@ -541,7 +541,6 @@ export function toOrdinal(n) {
 }
 
 function vecCheck(v1, v2) {
-  console.log('vecs to minus', v1, v2);
   if (v1.length === v2.length) return true;
   throw new TypeError(
     `Arguments ${JSON.stringify(v1)} and ${JSON.stringify(
