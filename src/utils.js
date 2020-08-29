@@ -16,9 +16,8 @@ export const identity = (x) => x;
 
 //------------ EXPORTED FUNCTIONS  ------------//
 
-// Returns f if it is a function, the identity fn otherwise.
 /**
- * Returns <tt>f</tt> if it is a function, or the identity function otherwise.
+ * Returns `f` if it is a function, or the identity function otherwise.
  * @param f
  * @returns {function}
  */
@@ -28,8 +27,9 @@ export function orIdentity(f) {
 
 /**
  * Returns the functional composition of its arguments.
- * @example
- * comp(f, g, h) // equivalent to (x) => f(g(h(x)))
+ *
+ * `comp(f, g, h)` is equivalent to `(x) => f(g(h(x)))`
+ *
  * @param {function} fns
  * @returns {function}
  */
@@ -40,8 +40,7 @@ export function comp(...fns) {
 /**
  * Returns the functional right-composition of its arguments.
  *
- * @example
- * rightComp(f, g, h) // equivalent to (x) => h(g(f(x)))
+ * `rightComp(f, g, h)` is equivalent to `(x) => h(g(f(x)))`.
  * @param {function} fns
  * @returns {function}
  */
@@ -50,7 +49,7 @@ export function rightComp(...fns) {
 }
 
 /**
- * Returns the first element of <tt>a</tt>.
+ * Returns the first element of `a`.
  * @param {*[]} arr
  * @returns {*}
  */
@@ -59,7 +58,7 @@ export function first(arr) {
 }
 
 /**
- * Returns the second element of <tt>a</tt>.
+ * Returns the second element of `a`.
  * @param {*[]} arr
  * @returns {*}
  */
@@ -68,7 +67,7 @@ export function second(arr) {
 }
 
 /**
- * Returns the last element of <tt>a</tt>.
+ * Returns the last element of `a`.
  * @param {*[]} arr
  * @returns {*}
  */
@@ -77,7 +76,7 @@ export function last(arr) {
 }
 
 /**
- * Returns copy of <tt>a</tt> without the first element.
+ * Returns copy of `a` without the first element.
  * @param {*[]} arr
  * @returns {*[]}
  */
@@ -86,50 +85,50 @@ export function rest(arr) {
 }
 
 /**
- * Returns copy of <tt>a</tt> without the last element.
+ * Returns copy of `a` without the last element.
  * @param {*[]} arr
  * @returns {*[]}
  */
 export const most = (arr) => arr.slice(0, -1);
 
 /**
- * Returns !x
- * @param x
+ * Returns `!x`
+ * @param {*} x
  * @returns {boolean}
  */
 export const not = (x) => !x;
 
 /**
  * Function that behaves like the || operator, returning its first truthy argument, or its last argument if none are truthy.
- * @param args
+ * @param {...*} args
  * @returns {*}
  */
 export const or = (...args) => args.find(identity) || last(args);
 
 /**
  * Returns a function that returns its first truthy argument, or <tt>def</tt> if none exists.
- * @param def
- * @returns {function(...[*]): *}
+ * @param {*} def
+ * @returns {function(...*): *}
  */
 export const orDefault = (def) => (...args) => or(...args, def);
 
 /**
  * Function that behaves like the && operator, returning its first falsy argument, or its last argument if none are falsy.
- * @param args
+ * @param {...*} args
  * @returns {*}
  */
 export const and = (...args) => args.find(not) && last(args);
 
 /**
  * Returns a function that returns its first falsy argument, or <tt>def</tt> if none exists.
- * @param def
- * @returns {function(...[*]): *}
+ * @param {*} def
+ * @returns {function(...*): *}
  */
 export const andDefault = (def) => (...args) => and(...args, def);
 
 /**
  * Returns the function that extracts the item at key <tt>k</tt> from its argument.
- * If <tt>k</tt> is a negative numerical index, <tt>part(k)</tt> returns a function to extract <tt>k</tt>th from last item.
+ * If `k` is a negative numerical index, `part(k)` returns a function that extracts the item at the `k`th from last index.
  * @param {string|number} k The string or index to be used as a key.
  * @returns {function}
  */
@@ -143,7 +142,7 @@ export const plus = (c) => (x) => x + c;
 /** Returns space-separated string concatenation of truthy arguments.
 
  Useful for conditionally assigning classes;
- <tt>classConcat(cond1 && class1, cond2 && class2, ...)</tt> 
+ `classConcat(cond1 && class1, cond2 && class2, ...)`
  returns the string of classes whose associated conditions are true.
  * @param {*} classes
  * @return string
@@ -303,8 +302,9 @@ export function repeatedTiming(n, f, ...args) {
  * Returns the result of mapping f over a range of integers.
  * @param {number} n -- a number
  * @param {function(number)} f -- a function
- * @returns {*[]} [f(0), f(1), ..., f(floor(n-1))] if n >= 0 <br/>
- * [f(0), f(-1), ..., f(ceil(n+1))] if n < 0
+ * @returns {*[]} [f(0), f(1), ..., f(floor(n-1))] if n >= 1 <br/>
+ * [f(0), f(-1), ..., f(ceil(n+1))] if n <= -1 <br/>
+ * [] if -1 < n < 1
  */
 export function mapLength(n, f) {
   return Array.from(
@@ -391,10 +391,16 @@ function getTimerInfo(minPrec = 0, maxPrec = 2) {
   };
 }
 
-// log argument, then return it
-export function echo(arg, ...rest) {
-  console.log(...rest, arg);
-  return arg;
+//
+/**
+ * console.log the first argument before returning it.
+ * @param {*} val -- value to be logged
+ * @param {...*} prefix -- values to pass to console.log before val
+ * @returns {*} val
+ */
+export function echo(val, ...prefix) {
+  console.log(...prefix, val);
+  return val;
 }
 
 // bisection method for finding y coordinate on a path at a particular x
@@ -424,8 +430,32 @@ export function getPointOnPathFromX(path, mx) {
   return pt;
 }
 
+/**
+ * Shuffles the array `arr` in place, using the
+ * [Fisher-Yates algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
+ * Returns the shuffled array.
+ *
+ * @param {*[]} arr
+ * @returns {*[]}
+ */
+export function shuffleInPlace(arr) {
+  let j = arr.length;
+  let i;
+  while (j--) {
+    i = Math.floor(Math.random() * (j + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
-// Kernel density estimator for binned frequency data
+/**
+ * Kernel density estimation using binned frequency data.
+ * @param {number[]} data
+ * @param {'uniform'|'triangular'|'quadratic'|'gaussian'|'cosine'|'sigmoid'|function(number):number} kernel
+ * @param {number} bandwidth
+ * @param {boolean} [normalize]
+ * @returns {number[]}
+ */
 export function binnedKDE(data, kernel, bandwidth, normalize = true) {
   let K;
   K =
@@ -443,7 +473,6 @@ export function binnedKDE(data, kernel, bandwidth, normalize = true) {
       : kernel === 'sigmoid'
       ? (x) => 1 / (Math.PI * Math.cosh(x))
       : (x) => (Math.abs(x) <= 1 ? 0.75 * (1 - x ** 2) : 0); // Default quadratic
-
   if (normalize) {
     const kde = mapLength(data.length, (i) =>
       d3.mean(data, (freq, j) => freq * K((i - j) / bandwidth))
@@ -457,5 +486,73 @@ export function binnedKDE(data, kernel, bandwidth, normalize = true) {
     );
   }
 }
+
+/**
+ * Attempts to find a random point [x, y] such that
+ * 1. 0 <= x < maxX, and 0 <= y < maxY
+ * 2. The euclidean distance between [x,y] and `point` is at least `minD`.
+ *
+ * This is not a sophisticated algorithm.
+ * We randomly generate a point satisfying criterion 1, then check whether it also satisfies criterion 2.
+ * If it does, this point is returned; otherwise, the process repeats.
+ * After 25 failed attempts, a warning is issued to the console, and the last randomly selected point is returned.
+ *
+ * @param {number} maxX
+ * @param {number} maxY
+ * @param {number[]} point
+ * @param {number} minD
+ * @returns {number[]}
+ */
+export function getRandomPointAtDistanceFrom(maxX, maxY, point, minD) {
+  if (!point) return [maxX * Math.random(), maxY * Math.random()];
+  let attempts = 25;
+  let p;
+  while (
+    attempts &&
+    dist2d((p = [maxX * Math.random(), maxY * Math.random()]), point) < minD
+  ) {
+    attempts--;
+  }
+  if (!attempts) {
+    console.warn(
+      `Failed to find point in region bounded by [0,0], [${maxX}, ${maxY}] with distance ${minD} from [${point}].`
+    );
+  }
+  return p;
+}
+
+/**
+ * Attempts to format a number or string representation of a number as an (english) ordinal.
+ * i.e. `toOrdinal(21)` should produce `"21st"`.
+ * @param {number|string} n
+ * @returns {string}
+ */
+export function toOrdinal(n) {
+  n = n.toString();
+  return `${n}${
+    /^(\d*[02-9])?1$/.test(n) // matches number string ending in 1 but not 11.
+      ? 'st'
+      : /^(\d*[02-9])?2$/.test(n) // matches number string ending in 2 but not 12.
+      ? 'nd'
+      : /^(\d*[02-9])?3$/.test(n) // matches number string ending in 3 but not 13.
+      ? 'rd'
+      : 'th'
+  }`;
+}
+
+function vecCheck(v1, v2) {
+  console.log('vecs to minus', v1, v2);
+  if (v1.length === v2.length) return true;
+  throw new TypeError(
+    `Arguments ${JSON.stringify(v1)} and ${JSON.stringify(
+      v2
+    )} are not of equal length.`
+  );
+}
+export const vecPlus = (v1, v2) => vecCheck(v1, v2) && v1.map((vi, i) => vi + v2[i]);
+export const vecMinus = (v1, v2) => vecCheck(v1, v2) && v1.map((vi, i) => vi - v2[i]);
+export const vecScale = (v, a) => v.map((vi) => a * vi);
+export const vecLength = v => Math.hypot(...v);
+export const vecDot = (v1, v2) => vecCheck(v1, v2) && v1.reduce((s, vi, i) => s + vi * v2[i], 0);
 
 export {mod, modChop, getTimerInfo, getPrecision};

@@ -6,6 +6,66 @@
         <fileSet type="namedScope" name="less mixins" pattern="file:src/mixins.less" />
       </list>
     </option>
+    <DB2CodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </DB2CodeStyleSettings>
+    <DerbyCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </DerbyCodeStyleSettings>
+    <H2CodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </H2CodeStyleSettings>
+    <HSQLCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </HSQLCodeStyleSettings>
     <JSCodeStyleSettings version="0">
       <option name="FORCE_SEMICOLON_STYLE" value="true" />
       <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
@@ -16,25 +76,124 @@
       <option name="VAR_DECLARATION_WRAP" value="5" />
       <option name="SPACES_WITHIN_OBJECT_TYPE_BRACES" value="false" />
     </JSCodeStyleSettings>
-    <MySQLCodeStyleSettings version="2">
-      <option name="KEYWORD_CASE" value="0" />
-      <option name="TYPE_CASE" value="3" />
-      <option name="QUERY_EL_LINE" value="0" />
+    <MSSQLCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
       <option name="QUERY_ALIGN_ELEMENTS" value="false" />
       <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
-      <option name="WITH_EL_WRAP" value="2" />
-      <option name="SELECT_EL_WRAP" value="2" />
-      <option name="SELECT_ALIGN_AS" value="false" />
-      <option name="TABLE_OPENING" value="1" />
-      <option name="TABLE_CONTENT" value="2" />
-      <option name="TABLE_CLOSING" value="3" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
       <option name="TABLE_TYPES_ALIGN" value="false" />
       <option name="TABLE_DEFAULTS_ALIGN" value="false" />
       <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
-      <option name="TABLE_COLLAPSE" value="true" />
-      <option name="TABLE_ALTER_INSTRUCTION_ALIGN" value="false" />
-      <option name="POST_OPT_ALIGN" value="false" />
+    </MSSQLCodeStyleSettings>
+    <MySQLCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
+      <option name="KEYWORD_CASE" value="1" />
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="SUBQUERY_OPENING" value="4" />
+      <option name="SUBQUERY_CONTENT" value="4" />
+      <option name="SUBQUERY_CLOSING" value="4" />
+      <option name="INSERT_CONTENT" value="4" />
+      <option name="INSERT_EL_WRAP" value="2" />
+      <option name="SELECT_EL_WRAP" value="2" />
+      <option name="SELECT_KEEP_N_ITEMS_IN_LINE" value="5" />
+      <option name="FROM_EL_WRAP" value="2" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="WHERE_EL_WRAP" value="2" />
+      <option name="WHERE_EL_BOUND" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_CONTENT" value="2" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+      <option name="ROUTINE_ARG_CONTENT" value="1" />
+      <option name="ROUTINE_ARG_CLOSING" value="1" />
+      <option name="ROUTINE_ARG_WRAP" value="2" />
+      <option name="IMP_IF_THEN_WRAP_ELSE" value="false" />
+      <option name="EXPR_CASE_WHEN_WRAP" value="false" />
+      <option name="EXPR_CASE_END" value="9" />
     </MySQLCodeStyleSettings>
+    <OracleCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </OracleCodeStyleSettings>
+    <PostgresCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </PostgresCodeStyleSettings>
+    <SQLiteCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </SQLiteCodeStyleSettings>
+    <SqlCodeStyleSettings version="2">
+      <option name="KEYWORD_CASE" value="0" />
+      <option name="TYPE_CASE" value="0" />
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="INSERT_COLLAPSE_MULTI_ROW_VALUES" value="true" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="SELECT_ALIGN_AS" value="false" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </SqlCodeStyleSettings>
+    <SybaseCodeStyleSettings version="2">
+      <option name="QUERY_EL_LINE" value="101" />
+      <option name="QUERY_ALIGN_ELEMENTS" value="false" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_LINE" value="0" />
+      <option name="FROM_EL_LINE" value="0" />
+      <option name="FROM_EL_WRAP" value="0" />
+      <option name="WHERE_EL_LINE" value="0" />
+      <option name="ORDER_EL_LINE" value="0" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+    </SybaseCodeStyleSettings>
     <TypeScriptCodeStyleSettings version="0">
       <option name="FORCE_SEMICOLON_STYLE" value="true" />
       <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
@@ -43,6 +202,34 @@
       <option name="ENFORCE_TRAILING_COMMA" value="Remove" />
       <option name="SPACES_WITHIN_OBJECT_TYPE_BRACES" value="false" />
     </TypeScriptCodeStyleSettings>
+    <codeStyleSettings language="DB2">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Derby">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="H2">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="HSQLDB">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
     <codeStyleSettings language="JavaScript">
       <option name="SOFT_MARGINS" value="120" />
       <indentOptions>
@@ -59,10 +246,52 @@
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="MySQL">
+      <option name="KEEP_LINE_BREAKS" value="false" />
       <indentOptions>
         <option name="INDENT_SIZE" value="2" />
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
-        <option name="TAB_SIZE" value="2" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Oracle">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="PostgreSQL">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="SQL">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="SQLite">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Sybase">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="TSQL">
+      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="TypeScript">

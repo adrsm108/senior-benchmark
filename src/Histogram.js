@@ -1,76 +1,79 @@
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import {binnedKDE, classConcat, identity, last} from './utils';
 import {Card, Popover, Select, Slider, Switch, Typography} from 'antd';
 import {EllipsisOutlined} from '@ant-design/icons';
+import {binnedKDE, classConcat, echo, identity, last, toOrdinal} from './utils';
 import './Histogram.less';
 
 const {Option} = Select;
 const {Title, Text} = Typography;
 
-function spaceData(data, totalLength, indexKey, valueKey, defaultValue = 0) {
-  const spacedData = new Array(totalLength).fill(defaultValue);
-
-  for (const {[indexKey]: idx, [valueKey]: datum} of data) {
-    if (idx < totalLength) spacedData[idx] = datum;
-  }
-
-  return spacedData;
-}
-
 class Histogram extends Component {
   constructor(props) {
     super(props);
+    /** @type {object} */
     this.ref = React.createRef();
+    const xAxis = Object.assign(
+      {digits: 2, title: '', units: ''},
+      this.props.xAxis
+    );
+    const yAxis = Object.assign(
+      {digits: 2, title: '', units: ''},
+      this.props.yAxis
+    );
+    let padding = this.props.padding;
+    if (typeof padding === 'number') {
+      padding = {top: padding, bottom: padding, left: padding, right: padding};
+    } else {
+      padding = Object.assign(
+        {top: 30, right: 30, bottom: 30, left: 30},
+        padding
+      );
+    }
+
     this.state = {
-      showHistogram: true,
-      showDensity: true,
-      showPoints: true,
+      showHistogram: props.showHistogram,
+      showDensity: props.showDensity,
+      showPoints: props.showPoints,
+      showMean: props.showMean,
       kernel: props.defaultKernel,
       bandwidth: props.defaultBandwidth,
+      xAxis,
+      yAxis,
+      padding,
     };
   }
 
   initializeHistogram = () => {
-    const {padding, width, height} = this.props;
-    // if (typeof padding === 'number') {
-    //   padding = {top: padding, bottom: padding, left: padding, right: padding};
-    // }
-    const innerWidth = width - (padding.left + padding.right || 2 * padding);
-    const innerHeight = height - (padding.top + padding.bottom || 2 * padding);
     const {
-      globalSummary: {q1, q3},
-      histogram: {binStart, binWidth, data: rawData},
-    } = this.props.data;
+      width,
+      height,
+      data: {binStart, binWidth, data: rawData},
+      cutoff = binStart + last(rawData).bin * binWidth,
+    } = this.props;
+    const {padding} = this.state;
+    const innerWidth = width - (padding.left + padding.right);
+    const innerHeight = height - (padding.top + padding.bottom);
 
-    const cutoff = q3 + 2 * (q3 - q1);
     const bins = Math.ceil((cutoff - binStart) / binWidth);
-    // const data = spaceData(rawData, bins, 'bin', 'freq', 0);
-
     const data = new Array(bins).fill(0);
     for (const {bin, freq} of rawData) if (bin < bins) data[bin] = freq;
     let tot = 0;
     const cumData = [0, ...data.map((freq) => (tot += freq))];
 
-    // const quantileInterpolator = d3.interpolateBasis(cumData);
     const quantile = d3
       .scaleLinear()
       .domain([...cumData.keys(), last(rawData).bin])
       .range([...cumData, 1])
       .clamp(true);
 
-    // const quantileInterpolator = d3.piecewise(d3.interpolateNumber, cumData);
-    // const clen = cumData.length;
-    // shift right by 1/2 an index ( the result of shifting 1 right to account for control point, then left 1/2 to center with bin)
-    // const quantileInterpolate = (t, tMax) => quantileInterpolator(t / tMax);
-
     const yScale = d3
       .scaleLinear()
       .domain([0, data.reduce((a, x) => Math.max(a, x))])
       .range([innerHeight, 0]);
 
-    // scale bin index to milliseconds
-    const xScaleMs = d3
+    // scale data coordinates to svg coordinates
+    const xScaleData = d3
       .scaleLinear()
       .domain([0, bins - 1])
       .range([binStart, binStart + (bins - 1) * binWidth]);
@@ -84,7 +87,7 @@ class Histogram extends Component {
         innerWidth,
         innerHeight,
         xScale,
-        xScaleMs,
+        xScaleData,
         yScale,
         bins,
         data,
@@ -98,7 +101,7 @@ class Histogram extends Component {
           .curve(d3.curveBasis)
           .x0((_, i) => xScale(i - 1 / 2))
           .y0(yScale(0))
-          .y1(yScale),
+          .y1((d) => yScale(d)),
         callout: (g, value, translateY = 0) => {
           if (!value) return g.style('display', 'none');
 
@@ -153,7 +156,7 @@ class Histogram extends Component {
       innerWidth,
       innerHeight,
       xScale,
-      xScaleMs,
+      xScaleData,
       yScale,
       data,
       appear,
@@ -161,11 +164,8 @@ class Histogram extends Component {
       disappear,
       disappearEase,
     } = this.state.hist;
-
-    const padding = this.props.padding;
-
+    const {xAxis, yAxis, padding} = this.state;
     const histSel = d3.select(this.ref.current);
-    // histSel.selectAll('svg').remove();
 
     const rootSvg = histSel
       .selectAll('svg.root-svg')
@@ -183,19 +183,16 @@ class Histogram extends Component {
       .attr('id', 'rect-clip')
       .append('rect')
       .attr('x', 0)
-      .attr('y', -(padding.top || padding))
+      .attr('y', -padding.top)
       .attr('width', innerWidth)
-      .attr('height', innerHeight + (padding.top || padding));
+      .attr('height', innerHeight + padding.top);
 
     const root = rootSvg
       .selectAll('g.root-transform')
       .data([null])
       .join('g')
       .attr('class', 'root-transform')
-      .attr(
-        'transform',
-        `translate(${padding.left || padding},${padding.top || padding})`
-      );
+      .attr('transform', `translate(${padding.left},${padding.top})`);
 
     // Draw axes
     root
@@ -204,7 +201,11 @@ class Histogram extends Component {
       .join('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${innerHeight})`)
-      .call(d3.axisBottom(xScale).tickFormat((x) => xScaleMs(x).toFixed()))
+      .call(
+        d3
+          .axisBottom(xScale)
+          .tickFormat((x) => xScaleData(x).toFixed(xAxis.digits))
+      )
       .selectAll('text')
       .attr('transform', 'translate(-10, 0) rotate(-45)')
       .attr('class', 'x-axis-text');
@@ -214,7 +215,7 @@ class Histogram extends Component {
       .data([null])
       .join('g')
       .attr('class', 'y-axis')
-      .call(d3.axisLeft(yScale))
+      .call(d3.axisLeft(yScale).tickFormat((y) => y.toFixed(yAxis.digits)))
       .selectAll('text')
       .attr('class', 'y-axis-text');
 
@@ -271,7 +272,7 @@ class Histogram extends Component {
         data,
         quantile,
         xScale,
-        xScaleMs,
+        xScaleData,
         yScale,
         callout,
         innerWidth,
@@ -286,11 +287,16 @@ class Histogram extends Component {
       bandwidth,
       showDensity,
       showPoints,
+      showMean,
+      xAxis,
+      padding,
     } = this.state;
-    const {points, padding} = this.props;
-
+    const {points} = this.props;
     const pointData =
-      points && showPoints ? [points.mean, ...points.times] : [];
+      points && showDensity && showPoints ? points.data.map(this.props.pointsAccessor) : [];
+    if (pointData.length > 0 && showMean) {
+      pointData.unshift(points['mean'] || d3.mean(pointData))
+    }
 
     // pad array with zeros, which will later be clipped.
     // This gives us the freedom to shift our control points to the center of each interval.
@@ -359,12 +365,13 @@ class Histogram extends Component {
 
     densityRoot
       .selectAll('circle.query-point')
-      .data(showDensity ? pointData.map(xScaleMs.invert) : [])
+      .data(pointData.map(xScaleData.invert))
       .join(
         (enter) =>
           enter
             .append('circle')
-            .attr('class', (_, i) => classConcat('query-point', !i && 'mean'))
+            .attr('class', (_, i) => classConcat('query-point', showMean && !i && 'mean'))
+            .attr('clip-path', 'url(#rect-clip)')
             .attr('cx', xScale)
             .attr('cy', interpY)
             .attr('r', 0)
@@ -375,7 +382,7 @@ class Histogram extends Component {
                 .duration(250)
                 .ease(d3.easeExpIn)
                 .delay((_, i) => i * 25)
-                .attr('r', (_, i) => (i ? 3 : 4))
+                .attr('r', showMean ? (_, i) => (i ? 3 : 4) : 3)
             ),
         (update) =>
           update.call((update) =>
@@ -383,17 +390,11 @@ class Histogram extends Component {
               .transition(densityTransitionChange)
               .attr('cy', interpY)
               .attr('cx', xScale)
-              .attr('r', (_, i) => (i ? 3 : 4))
+              .attr('r', showMean ? (_, i) => (i ? 3 : 4) : 3)
           ),
         (exit) =>
           exit.call((exit) =>
-            exit
-              .transition(disappear)
-              .ease(disappearEase)
-              // .attr('cy', yScale(0))
-              // .delay((_, i) => i * 25)
-              .attr('r', 0)
-              .remove()
+            exit.transition(disappear).ease(disappearEase).attr('r', 0).remove()
           )
       );
 
@@ -406,21 +407,21 @@ class Histogram extends Component {
       .attr('fill', 'none')
       .attr('stroke', 'none')
       .attr('width', innerWidth)
-      .attr('y', -(padding.top || padding))
-      .attr('height', innerHeight + (padding.top || padding))
+      .attr('y', -padding.top)
+      .attr('height', innerHeight + padding.top)
       .on('touchmove mousemove', function () {
         const mx = d3.mouse(densityAreaNode)[0];
         const areaWidth = densityAreaNode.getBBox().width;
         const px = mx / areaWidth;
-        const x = (mx / areaWidth) * dlen;
+        const x = px * dlen;
         const y = interp(px + shift);
         tooltip
           .attr('transform', `translate(${mx},${yScale(y)})`)
           .call(
             callout,
-            `${xScaleMs(x).toFixed(2)}ms\n${(100 * (1 - quantile(x))).toFixed(
-              2
-            )}th percentile`,
+            `${xScaleData(x).toFixed(xAxis.digits)}${xAxis.units}\n${toOrdinal(
+              (100 * (1 - quantile(x))).toFixed()
+            )} percentile`,
             yScale(y)
           );
       })
@@ -434,8 +435,12 @@ class Histogram extends Component {
   }
 
   render() {
+    const {xAxis, yAxis, showHistogram, showDensity, showPoints, bandwidth, kernel} = this.state;
     return (
-      <Card title={null} className={classConcat('Histogram', this.props.className)}>
+      <Card
+        title={null}
+        className={classConcat('Histogram', this.props.className)}
+      >
         <Popover
           trigger="click"
           placement="rightTop"
@@ -444,32 +449,30 @@ class Histogram extends Component {
               <div className="title-and-switch">
                 <Title level={4}>Histogram</Title>
                 <Switch
-                  defaultChecked
+                  defaultChecked={showHistogram}
                   onChange={(value) => this.setState({showHistogram: value})}
                 />
               </div>
               <div className="title-and-switch">
-                <Title level={4}>Density</Title>
+                <Title level={4}>Estimated Density</Title>
                 <Switch
-                  defaultChecked
+                  defaultChecked={showDensity}
                   onChange={(value) => this.setState({showDensity: value})}
                 />
               </div>
               <div className="title-and-switch">
                 <Title level={4}>Points</Title>
                 <Switch
-                  defaultChecked
-                  disabled={!this.state.showDensity}
+                  defaultChecked={showPoints}
+                  disabled={!showDensity}
                   onChange={(value) => this.setState({showPoints: value})}
                 />
               </div>
-              <Text strong>Kernel</Text>
+              <Text strong>Kernel Type</Text>
               <Select
-                disabled={!this.state.showDensity}
-                defaultValue={this.state.kernel}
-                onChange={(value) =>
-                  this.setState({kernel: value}, this.updateDensity)
-                }
+                disabled={!showDensity}
+                defaultValue={kernel}
+                onChange={(value) => this.setState({kernel: value})}
               >
                 <Option value="uniform"> Uniform</Option>
                 <Option value="triangular">Triangular</Option>
@@ -489,7 +492,7 @@ class Histogram extends Component {
                   min={0.1}
                   max={20}
                   tooltipVisible={false}
-                  defaultValue={this.state.bandwidth}
+                  defaultValue={bandwidth}
                   onChange={(value) => {
                     this.setState({bandwidth: value});
                   }}
@@ -500,61 +503,71 @@ class Histogram extends Component {
         >
           <EllipsisOutlined className="settings-icon" />
         </Popover>
-        {this.props.title !== null && <Title className="histogram-title" level={3}>{this.props.title}</Title>}
-        <div className="plot-area" ref={this.ref} />
+        {this.props.title !== null && (
+          <Title className="histogram-title" level={3}>
+            {this.props.title}
+          </Title>
+        )}
+
+        <div className="plot-area" ref={this.ref}>
+          <Text className="y-axis-title">
+            {yAxis.title}
+            {yAxis.units && (
+              <Text className="y-axis-units">({yAxis.units})</Text>
+            )}
+          </Text>
+        </div>
+        <Text className="x-axis-title">
+          {xAxis.title}
+          {xAxis.units && <Text className="x-axis-units">({xAxis.units})</Text>}
+        </Text>
       </Card>
     );
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const fn = () => setTimeout(() => this.setState({showPoints: true}), 300);
+    // Try to minimize histogram redraws based on what changed.
     if (prevProps.data !== this.props.data) {
       this.initializeHistogram();
-    } else if (prevState !== this.state) {
-      if (
-        prevState.hist !== this.state.hist ||
-        prevState.showHistogram !== this.state.showHistogram
-      ) {
-        this.drawHistogram();
-      } else if (
-        prevProps.points !== this.props.points &&
-        this.state.showPoints
-      ) {
-        this.setState({showPoints: false, revealPoints: true}, fn);
-      } else {
-        this.updateDensity();
-      }
+    } else if (
+      prevState.hist !== this.state.hist ||
+      prevState.showHistogram !== this.state.showHistogram
+    ) {
+      this.drawHistogram();
     } else if (
       prevProps.points !== this.props.points &&
       this.state.showPoints
     ) {
-      this.setState({showPoints: false, revealPoints: true}, fn);
+      // If the points changed, toggle showPoints off and on again.
+      // Ultimately, this results in two calls to updateDensity, over which the points disappear
+      // then reappear at their new locations. (much nicer than watching them fly to new positions.)
+      this.setState({showPoints: false}, () =>
+        setTimeout(() => this.setState({showPoints: true}), 300)
+      );
+    } else if (prevState !== this.state) {
+      this.updateDensity();
     }
   }
-  /*
-      Object.keys(this.props.data).forEach((key) => {
-        console.log(
-          key,
-          this.props.data[key] !== prevProps.data[key] ? ' not equal' : ' equal'
-        );
-      });
-    } else {
-      console.log('data equal');
-    }
-    this.drawHistogram();
- 
- * */
 }
 
 Histogram.defaultProps = {
   data: {},
-  padding: {top: 30, right: 30, bottom: 70, left: 60},
+  cutoff: null,
+  padding: 30,
   width: 660,
   height: 400,
   defaultBandwidth: 2,
   defaultKernel: 'quadratic',
+  xAxis: {},
+  yAxis: {},
   title: null,
   className: null,
+  points: null,
+  pointsAccessor: (x) => x,
+  showHistogram: true,
+  showDensity: true,
+  showPoints: true,
+  showMean: true,
 };
 
 export default Histogram;
