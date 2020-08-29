@@ -2,6 +2,8 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/server.js" dialect="MariaDB" />
-    <file url="file://$PROJECT_DIR$/testdata/senior_benchmark_testdata.sql" dialect="MariaDB" />
+    <file url="file://$PROJECT_DIR$/testdata/seniorbenchmark.sql" dialect="MariaDB" />
+    <file url="file://$PROJECT_DIR$/testdata/useraccounts.sql" dialect="GenericSQL" />
+    <file url="PROJECT" dialect="MariaDB" />
   </component>
 </project>
