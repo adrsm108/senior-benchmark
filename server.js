@@ -9,6 +9,7 @@ const app = express();
 
 const path = require('path');
 const mysql = require('mysql');
+const bcrypt = require('bcrypt');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const pool = mysql.createPool(env['pool']);
@@ -129,22 +130,35 @@ app.get('/', function(req, res) {
 app.post('/auth', function(req, res) {
   let username = req.body.username;
   let password = req.body.password;
-  console.log(req.body);
-  if (username && password) {
-    pool.query('SELECT * FROM accounts WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
-      if (results.length > 0) {
-        req.session.loggedin = true;
-        req.session.username = username;
-        res.redirect('/home');
-      } else {
-        res.send('Incorrect Username and/or Password!');
-      }
-      res.end();
-    });
-  } else {
-    res.send('Please enter Username and Password!');
-    res.end();
-  }
+  pool.query('SELECT password FROM accounts WHERE username = ?', [username], function(error, results) {
+    if (results.length === 0) {
+      // username doesn't exist
+      console.log('username doesn\'t exist')
+      return res.status(401).send();
+    }
+
+    let hashedPassword = results[0].password;
+    bcrypt.compare(password, hashedPassword)
+      .then(function(isSame) {
+        if (isSame) {
+          if (username && password) {
+            pool.query('SELECT * FROM accounts WHERE username = ? AND password = ?', [username, hashedPassword], function(error, results) {
+              if (results.length > 0) {
+                req.session.loggedin = true;
+                req.session.username = username;
+                res.redirect('/home');
+              } else {
+                res.send('Incorrect Username and/or Password!');
+              }
+              res.end();
+            });
+          } else {
+            res.send('Please enter Username and Password!');
+            res.end();
+          }
+        }
+      })
+  })
 });
 
 app.get('/home', function(req, res) {
@@ -154,6 +168,52 @@ app.get('/home', function(req, res) {
     res.send('Please login to view this page!');
   }
   res.end();
+});
+
+app.post('/register', function(req, res) {
+  let username = req.body.username;
+  let password = req.body.password;
+  console.log('Checking if U and P meet requirements')
+  if (
+      typeof username !== "string" ||
+      typeof password !== "string" ||
+      username.length < 1 ||
+      username.length > 20 ||
+      password.length < 10 ||
+      password.length > 36
+  ) {
+    // username and/or password invalid
+    return res.status(401).send();
+  }
+  console.log('Requirements passed!')
+  if (username && password) {
+    pool.query('SELECT username FROM accounts WHERE username = ?', [username], function(error, results) {
+      console.log('Checking if username is free')
+      if (!results[0]) {
+        //username is available
+        console.log('Username is available and now attempting hashing password')
+        bcrypt.hash(password, 10)
+          .then(function(hashedPassword) {
+            console.log('Password is hashed and trying to save in DB')
+            pool.query('INSERT INTO accounts (username, password) VALUES (?, ?)',
+              [username, hashedPassword], function(error) {
+              console.log(error)
+
+            })
+          })
+          .catch(function(error) {
+            console.log('bcrypt error: ' + error);
+          });
+      } else {
+        // username is taken/exists
+        return res.status(401).send();
+        // TODO Send client alert to user
+      }
+    });
+  } else {
+    res.send('Please enter Username and Password!');
+    res.end();
+  }
 });
 
 app.listen(port, host, () => {

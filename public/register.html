@@ -2,28 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Register</title>
     <style>
-        .login-form {
+        .register-form {
             width: 300px;
             margin: 0 auto;
             font-family: Tahoma, Geneva, sans-serif;
         }
-        .login-form h1 {
+        .register-form h1 {
             text-align: center;
             color: #4d4d4d;
             font-size: 24px;
             padding: 20px 0 20px 0;
         }
-        .login-form input[type="password"],
-        .login-form input[type="text"] {
+        .register-form input[type="password"],
+        .register-form input[type="text"] {
             width: 100%;
             padding: 15px;
             border: 1px solid #dddddd;
             margin-bottom: 15px;
             box-sizing:border-box;
         }
-        .login-form input[type="submit"] {
+        .register-form input[type="submit"] {
             width: 100%;
             padding: 15px;
             background-color: #535b63;
@@ -36,16 +36,16 @@
     </style>
 </head>
 <body>
-    <div class="login-form">
-        <h1>Login</h1>
-        <form action="auth" method="POST">
+    <div class="register-form">
+        <h1>Register</h1>
+        <form action="register" method="POST">
             <label>
                 <input type="text" name="username" placeholder="Username" required>
             </label>
             <label>
                 <input type="password" name="password" placeholder="Password" required>
             </label>
-            <input type="Submit" value="Submit">
+            <input type="Submit" value="Create">
         </form>
     </div>
 </body>
