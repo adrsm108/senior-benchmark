@@ -33,7 +33,8 @@ div.plot-area {
   fill: steelblue;
 }
 
-.root-svg {
+svg.root-svg {
+  overflow: visible;
   //border: 1px solid black;
 }
 
@@ -52,6 +53,33 @@ div.title-and-switch {
     font-size: 1.1em;
     margin-bottom: 0;
   }
+}
+
+span.x-axis-title, span.y-axis-title {
+  //fill: black;
+  font-size: 12pt;
+  display: block;
+  align-self: center;
+  justify-self: center;
+  //text-anchor: middle;
+  //display: inline-block;
+}
+span.x-axis-title {
+  text-align: end;
+}
+span.y-axis-title {
+  text-align: center;
+  transform: rotate(-90deg) translateY(25%);
+  //transform: rotate(-90deg);
+}
+
+div.grid {
+  display: grid;
+  grid: ~'auto 1fr / 30px 1fr';
+}
+
+.x-axis-text {
+  text-anchor: end;
 }
 
 .mouse-crosshair {
@@ -76,9 +104,6 @@ div.title-and-switch {
   fill: @histogram-bar-fill-color;
 }
 
-.x-axis-text {
-  text-anchor: end;
-}
 
 .settings-icon {
   align-self: flex-end;

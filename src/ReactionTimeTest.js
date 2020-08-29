@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {Button, Space, Statistic, Typography} from 'antd';
-import {getTimerInfo, mapLength, mean} from './utils';
-// import _ from 'lodash';
-import * as d3 from 'd3';
+import {Card, Space, Statistic, Typography} from 'antd';
+import {getTimerInfo, mean} from './utils';
+
 import './ReactionTimeTest.less';
 import {ScoreTable} from './ScoreTable';
 import ResultsPanel from './ResultsPanel';
+import Histogram from './Histogram';
 
 const {Text, Title} = Typography;
 
@@ -26,38 +26,6 @@ class ReactionTimeTest extends Component {
       times: [],
       results: null,
     };
-    this.timer = getTimerInfo();
-
-/*
-    //Test data
-    this.state = {
-      testActive: false,
-      roundActive: false,
-      roundFailed: false,
-      triggered: false,
-      timeoutId: null,
-      round: null,
-      times: [291.0750000155531, 281.27500001573935, 290.0750000262633, 270.9000000031665, 253.12499998835847,],
-      results: {
-        globalSummary: {n: 495, mean: 401.3, sd: 522.603, min: 1.03, q1: 259.137, median: 297.605, q3: 369.628, max: 5635.48},
-        histogram: {
-          bins: 202,
-          binStart: 0,
-          binWidth: 27.94,
-          data: [{bin: 0, freq: 0.0263}, {bin: 1, freq: 0.0101}, {bin: 2, freq: 0.0061}, {bin: 3, freq: 0.0162,}, {bin: 4, freq: 0.0101}, {bin: 5, freq: 0.0121}, {bin: 6, freq: 0.0182}, {bin: 7, freq: 0.0384,}, {bin: 8, freq: 0.0848}, {bin: 9, freq: 0.1394}, {bin: 10, freq: 0.204}, {bin: 11, freq: 0.103,}, {bin: 12, freq: 0.0707}, {bin: 13, freq: 0.0465}, {bin: 14, freq: 0.0202}, {bin: 15, freq: 0.0364,}, {bin: 16, freq: 0.0263}, {bin: 17, freq: 0.0162}, {bin: 18, freq: 0.0101}, {bin: 19, freq: 0.0121,}, {bin: 20, freq: 0.0061}, {bin: 21, freq: 0.0081}, {bin: 22, freq: 0.0121}, {bin: 23, freq: 0.004,}, {bin: 24, freq: 0.002}, {bin: 25, freq: 0.002}, {bin: 26, freq: 0.002}, {bin: 28, freq: 0.002,}, {bin: 29, freq: 0.004}, {bin: 31, freq: 0.0061}, {bin: 34, freq: 0.002}, {bin: 36, freq: 0.002,}, {bin: 37, freq: 0.002}, {bin: 39, freq: 0.0061}, {bin: 41, freq: 0.002}, {bin: 46, freq: 0.004,}, {bin: 49, freq: 0.002}, {bin: 65, freq: 0.002}, {bin: 72, freq: 0.002}, {bin: 78, freq: 0.002,}, {bin: 79, freq: 0.002}, {bin: 80, freq: 0.002}, {bin: 101, freq: 0.002}, {bin: 105, freq: 0.002,}, {bin: 127, freq: 0.002}, {bin: 144, freq: 0.002}, {bin: 163, freq: 0.002}, {bin: 183, freq: 0.002,}, {bin: 201, freq: 0.002}],
-        },
-        query: {
-          id: 124,
-          times: [291.075, 281.275, 290.075, 270.9, 253.125],
-          mean: 277.29,
-          sd: 15.765,
-          meanQuantile: 0.2551020408,
-          sdQuantile: 0.0408163265,
-        },
-      },
-      testComplete: false,
-    };
-*/
   }
 
   submitTimes = (user, times, timer) => {
@@ -259,6 +227,16 @@ class ReactionTimeTest extends Component {
   render() {
     console.log(this.state);
     const [status, message] = this.generateStatusAndMessage();
+    const {globalSummary, histogram, query} = this.state.results || {};
+    const {q1, q3} = globalSummary || {};
+    const cutoff = globalSummary
+      ? Math.max(2 * (q3 - q1) + q3, ...query.data)
+      : 1;
+    console.log(cutoff);
+    console.log(q1, q3);
+    console.log(2 * (q3 - q1) + q3);
+    console.log(globalSummary);
+    console.log(this.state.results);
     return (
       <div className="ReactionTimeTest">
         <Title className="page-title">Reaction Time Test</Title>
@@ -277,7 +255,35 @@ class ReactionTimeTest extends Component {
             {message}
           </div>
           {this.state.results && (
-            <ResultsPanel type="ReactionTimeTest" data={this.state.results} />
+            <div className="results">
+              <Card className="stats-card">
+                <div className="label-and-stat">
+                  <Text strong>Mean Time</Text>
+                  <Text>
+                    {this.state.results.query['mean'].toFixed(2)}
+                    ms
+                  </Text>
+                </div>
+                <div className="label-and-stat">
+                  <Text strong>Mean Percentile</Text>
+                  <Text>
+                    {(
+                      (1 - this.state.results.query['meanQuantile']) *
+                      100
+                    ).toFixed(2)}
+                  </Text>
+                </div>
+              </Card>
+              <Histogram
+                className="histogram-card"
+                data={histogram}
+                cutoff={cutoff}
+                xAxis={{units: 'ms', digits: 0, title: 'Time'}}
+                yAxis={{title: 'Frequency'}}
+                points={query}
+                title="Here's a Histogram!"
+              />
+            </div>
           )}
         </Space>
       </div>

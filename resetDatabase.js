@@ -23,13 +23,11 @@ require('child_process').exec(
   `mysql -u ${pool.user} -p ${pool.database} < ${dataPath}`,
   (error, stdout, stderr) => {
     console.log(
-      `Attempting to reset database ${pool.database} from file ${dataPath}`,
+      `Attempting to reset database ${pool.database} from file ${dataPath}`
     );
     if (error) throw error;
-
     if (stdout) console.log(stdout);
     if (stderr) console.error(stderr);
-
     console.log('Done.');
-  },
+  }
 );

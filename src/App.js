@@ -1,8 +1,11 @@
 import React, {Component} from 'react';
-import './App.less';
-import {Divider, Layout, Typography, Space} from 'antd';
+import {Layout, Typography} from 'antd';
+import {Route, Switch, BrowserRouter as Router} from 'react-router-dom';
 import ReactionTimeTest from './ReactionTimeTest';
 import AimTest from './AimTest';
+import LandingPage from './LandingPage';
+import {shuffleInPlace} from './utils';
+import './App.less';
 
 const {Title, Text, Link} = Typography;
 const {Header, Content, Footer} = Layout;
@@ -11,31 +14,44 @@ class App extends Component {
   constructor(props) {
     super(props);
     // Randomize order on initial load, but never change once the app has started.
-    this.footerLinks = [
-      <Link key="Adam">Adam Smith</Link>,
-      <Link key="Aaron">Aaron Zehm</Link>,
-    ];
-    if (Math.random() < 0.5) this.footerLinks.reverse();
+    this.state = {
+      footerLinks: shuffleInPlace([
+        <Link key="Adam">Adam Smith</Link>,
+        <Link key="Aaron">Aaron Zehm</Link>,
+      ]),
+    };
   }
 
   render() {
     return (
-      <Layout id="app-layout">
-        <Header id="app-header">
-          <Title>Senior Benchmark</Title>
-        </Header>
-        <Layout id="content-layout">
-          <Content id="main-content">
-            <ReactionTimeTest />
-          </Content>
+      <Router>
+        <Layout id="app-layout">
+          <Header id="app-header">
+            <Title>Senior Benchmark</Title>
+          </Header>
+          <Layout id="content-layout">
+            <Content id="main-content">
+              <Switch>
+                <Route path="/reaction-time">
+                  <ReactionTimeTest />
+                </Route>
+                <Route path="/aim-test">
+                  <AimTest />
+                </Route>
+                <Route path="/">
+                  <LandingPage />
+                </Route>
+              </Switch>
+            </Content>
+          </Layout>
+          <Footer id="app-footer">
+            <div className="footer-content">
+              <Text>2020</Text>
+              {this.state.footerLinks}
+            </div>
+          </Footer>
         </Layout>
-        <Footer id="app-footer">
-          <div className="footer-content">
-            <Text>2020</Text>
-            {this.footerLinks}
-          </div>
-        </Footer>
-      </Layout>
+      </Router>
     );
   }
 }

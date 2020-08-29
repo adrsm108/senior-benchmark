@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
-import {classConcat, mapLength} from './utils';
-import {Space, Typography, Button, Card} from 'antd';
+import {classConcat} from './utils';
+import {Card, Typography} from 'antd';
 import './ResultsPanel.less';
 import Histogram from './Histogram';
-import * as d3 from 'd3';
-// import {scaleLinear} from 'd3-scale';
 
-const {Title, Text} = Typography;
+const {Text} = Typography;
 
 class ResultsPanel extends Component {
   constructor(props) {
@@ -24,40 +22,32 @@ class ResultsPanel extends Component {
 
   render() {
     const type = this.props.type;
+    console.log('from respan', this.props.data);
+    const {q1, q3} = this.props.data.globalSummary;
+    const cutoff = Math.max(q3 + 2 * (q3 - q1), ...this.props.data.query.times);
     return (
       <div className={classConcat('ResultsPanel', type)}>
-        {/*<Title>RESULTS</Title>*/}
         <Card className="stats-card">
           <div className="label-and-stat">
             <Text strong>Mean Time</Text>
-            <Text>{this.state.query['mean'].toFixed(2)}ms</Text>
+            <Text>
+              {this.state.query['mean'].toFixed(
+                2
+              )}
+              ms
+            </Text>
           </div>
           <div className="label-and-stat">
             <Text strong>Mean Percentile</Text>
-            <Text>{((1 - this.state.query['meanQuantile']) * 100).toFixed(2)}</Text>
+            <Text>
+              {((1 - this.state.query['meanQuantile']) * 100).toFixed(2)}
+            </Text>
           </div>
         </Card>
-
-        {/*<Button*/}
-        {/*  onClick={() => {*/}
-        {/*    const newTimes = mapLength(5, () => Math.random() * 600 + 50);*/}
-        {/*    this.setState({*/}
-        {/*      query: {*/}
-        {/*        id: null,*/}
-        {/*        times: newTimes,*/}
-        {/*        mean: d3.mean(newTimes),*/}
-        {/*        sd: d3.deviation(newTimes),*/}
-        {/*        meanQuantile: null,*/}
-        {/*        sdQuantile: null,*/}
-        {/*      },*/}
-        {/*    });*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  Randomize Times*/}
-        {/*</Button>*/}
         <Histogram
           className="histogram-card"
-          data={this.state.data}
+          data={this.state.data.histogram}
+          cutoff={cutoff}
           points={this.state.query}
           padding={30}
           bandwidth={this.state.bandwidth}

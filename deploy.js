@@ -1,6 +1,12 @@
 const deploymentRepo =
   'https://github.com/adrsm108/senior-benchmark-deployed.git';
 
+try {
+  require('fs').rmdirSync('./node_modules/.cache/gh-pages', {recursive: true});
+} catch (e) {
+  console.error(e);
+}
+
 require('gh-pages').publish(
   '.',
   {
@@ -15,10 +21,9 @@ require('gh-pages').publish(
     remove: '!(package.json)',
     branch: 'master',
     repo: deploymentRepo,
-    history: false,
+    // history: false,
   },
   (err) => {
     console.error(err);
   }
 );
-
