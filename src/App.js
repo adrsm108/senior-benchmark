@@ -6,6 +6,7 @@ import AimTest from './AimTest';
 import LandingPage from './LandingPage';
 import {shuffleInPlace} from './utils';
 import './App.less';
+import NumberMemory from './NumberMemory';
 
 const {Title, Text, Link} = Typography;
 const {Header, Content, Footer} = Layout;
@@ -37,6 +38,9 @@ class App extends Component {
                 </Route>
                 <Route path="/aim-test">
                   <AimTest />
+                </Route>
+                <Route path="/number-memory">
+                  <NumberMemory />
                 </Route>
                 <Route path="/">
                   <LandingPage />
