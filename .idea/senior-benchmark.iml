@@ -9,5 +9,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="@types/d3" level="application" />
+    <orderEntry type="library" name="@types/d3-selection" level="application" />
+    <orderEntry type="library" name="@types/d3-array" level="application" />
+    <orderEntry type="library" name="@types/d3-interpolate" level="application" />
+    <orderEntry type="library" name="@types/d3-collection" level="application" />
+    <orderEntry type="library" name="@types/d3-scale" level="application" />
+    <orderEntry type="library" name="@types/d3-axis" level="application" />
   </component>
 </module>
