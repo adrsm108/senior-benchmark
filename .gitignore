@@ -25,3 +25,4 @@ yarn-error.log*
 env.json
 package-lock.json
 env.example
+.idea/dataSources/6633e34c-f6f1-4738-be79-d12e488fb8e1.xml

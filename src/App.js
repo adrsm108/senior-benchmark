@@ -7,6 +7,7 @@ import Login from './Login';
 import LandingPage from './LandingPage';
 import {shuffleInPlace} from './utils';
 import './App.less';
+import NumberMemory from './NumberMemory';
 import {LoginModal, RegisterModal} from './FormModals';
 import {ReactComponent as SeniorBenchmarkLogo} from './images/seniorbenchmark_logo.svg';
 import {ReactComponent as NumberMemoryLogo} from './images/number_memory.svg';
@@ -34,13 +35,12 @@ class App extends Component {
   };
 
   render() {
-    console.log(this.props);
     return (
       <Layout id="app-layout">
         <Header id="app-header">
           <div className="header-overlay">
             <div className="logo-and-title">
-              <SeniorBenchmarkLogo className="app-logo" />
+              <SeniorBenchmarkLogo className="app-logo"/>
               <Title className="app-title">Senior Benchmark</Title>
             </div>
           </div>
@@ -51,23 +51,23 @@ class App extends Component {
             />
             <div className="skewed-div">
               <div className="skewed-div-contents">
-                <ReactionTimeLogo className="icon-image" />
+                <ReactionTimeLogo className="icon-image"/>
                 <span>Reaction Time</span>
               </div>
             </div>
             <div className="skewed-div">
               <div className="skewed-div-contents">
-                <NumberMemoryLogo className="icon-image" />
+                <NumberMemoryLogo className="icon-image"/>
                 <span>Number Memory</span>
               </div>
             </div>
             <div className="skewed-div">
               <div className="skewed-div-contents">
-                <AimTestLogo className="icon-image" />
+                <AimTestLogo className="icon-image"/>
                 <span>Aim Testa</span>
               </div>
             </div>
-            <div className="skewed-div" />
+            <div className="skewed-div"/>
           </div>
           {/*<div id="account-actions">*/}
           {/*  <Link*/}
@@ -90,16 +90,16 @@ class App extends Component {
           <Content id="main-content">
             <Switch>
               <Route path="/reaction-time">
-                <ReactionTimeTest />
+                <ReactionTimeTest/>
               </Route>
               <Route path="/aim-test">
-                <AimTest />
+                <AimTest/>
               </Route>
-              <Route path="/login">
-                <Login />
+              <Route path="/number-memory">
+                <NumberMemory/>
               </Route>
               <Route path="/">
-                <LandingPage />
+                <LandingPage/>
               </Route>
             </Switch>
           </Content>
