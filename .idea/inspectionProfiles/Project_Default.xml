@@ -6,11 +6,13 @@
       <option name="myIgnoreVendorSpecificProperties" value="false" />
       <option name="myCustomPropertiesList">
         <value>
-          <list size="4">
+          <list size="6">
             <item index="0" class="java.lang.String" itemvalue="lg" />
             <item index="1" class="java.lang.String" itemvalue="sm" />
             <item index="2" class="java.lang.String" itemvalue="xs" />
             <item index="3" class="java.lang.String" itemvalue="md" />
+            <item index="4" class="java.lang.String" itemvalue="xl" />
+            <item index="5" class="java.lang.String" itemvalue="xxl" />
           </list>
         </value>
       </option>

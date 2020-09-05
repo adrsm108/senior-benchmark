@@ -48,33 +48,28 @@
   justify-content: center;
   align-items: center;
   padding: 32px;
-}
 
-.round-failed {
-  background: @round-failed-color;
-}
+  &.unplayed {
+    background: @test-unstarted-color;
 
-.between-rounds {
-  background: @between-rounds-color;
-}
-
-.triggered {
-  background: @triggered-color;
-}
-
-.round-active {
-  background: @round-active-color;
-}
-
-.test-complete {
-  background: @test-complete-color;
-}
-
-.test-unstarted {
-  background: @test-unstarted-color;
-
-  .reaction-area-message {
-    animation: fade-in 1s ease 1s both;
+    .reaction-area-message {
+      animation: fade-in 1s ease 1s both;
+    }
+  }
+  &.failed {
+    background: @round-failed-color;
+  }
+  &.roundComplete {
+    background: @between-rounds-color;
+  }
+  &.triggered {
+    background: @triggered-color;
+  }
+  &.waiting {
+    background: @round-active-color;
+  }
+  &.results {
+    background: @test-complete-color;
   }
 }
 
@@ -187,5 +182,3 @@ div.results {
   align-items: flex-start;
   padding: 0px;
 }
-
-

@@ -291,11 +291,13 @@ class Histogram extends Component {
       xAxis,
       padding,
     } = this.state;
-    const {points} = this.props;
+    const {points, ascending} = this.props;
     const pointData =
-      points && showDensity && showPoints ? points.data.map(this.props.pointsAccessor) : [];
+      points && showDensity && showPoints
+        ? points.data.map(this.props.pointsAccessor)
+        : [];
     if (pointData.length > 0 && showMean) {
-      pointData.unshift(points['mean'] || d3.mean(pointData))
+      pointData.unshift(points['mean'] || d3.mean(pointData));
     }
 
     // pad array with zeros, which will later be clipped.
@@ -370,7 +372,9 @@ class Histogram extends Component {
         (enter) =>
           enter
             .append('circle')
-            .attr('class', (_, i) => classConcat('query-point', showMean && !i && 'mean'))
+            .attr('class', (_, i) =>
+              classConcat('query-point', showMean && !i && 'mean')
+            )
             .attr('clip-path', 'url(#rect-clip)')
             .attr('cx', xScale)
             .attr('cy', interpY)
@@ -420,7 +424,7 @@ class Histogram extends Component {
           .call(
             callout,
             `${xScaleData(x).toFixed(xAxis.digits)}${xAxis.units}\n${toOrdinal(
-              (100 * (1 - quantile(x))).toFixed()
+              (100 * (ascending ? quantile(x) : 1 - quantile(x))).toFixed()
             )} percentile`,
             yScale(y)
           );
@@ -435,12 +439,17 @@ class Histogram extends Component {
   }
 
   render() {
-    const {xAxis, yAxis, showHistogram, showDensity, showPoints, bandwidth, kernel} = this.state;
+    const {
+      xAxis,
+      yAxis,
+      showHistogram,
+      showDensity,
+      showPoints,
+      bandwidth,
+      kernel,
+    } = this.state;
     return (
-      <Card
-        title={null}
-        className={classConcat('Histogram', this.props.className)}
-      >
+      <div className={classConcat('Histogram', this.props.className)}>
         <Popover
           trigger="click"
           placement="rightTop"
@@ -513,15 +522,17 @@ class Histogram extends Component {
           <Text className="y-axis-title">
             {yAxis.title}
             {yAxis.units && (
-              <Text className="y-axis-units">({yAxis.units})</Text>
+              <Text className="axis-units">{` (${yAxis.units})`}</Text>
             )}
           </Text>
         </div>
         <Text className="x-axis-title">
           {xAxis.title}
-          {xAxis.units && <Text className="x-axis-units">({xAxis.units})</Text>}
+          {xAxis.units && (
+            <Text className="axis-units">{` (${xAxis.units})`}</Text>
+          )}
         </Text>
-      </Card>
+      </div>
     );
   }
 
@@ -568,6 +579,7 @@ Histogram.defaultProps = {
   showDensity: true,
   showPoints: true,
   showMean: true,
+  ascending: true,
 };
 
 export default Histogram;

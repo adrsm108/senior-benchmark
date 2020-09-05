@@ -4,7 +4,6 @@ import {getTimerInfo, mean} from './utils';
 
 import './ReactionTimeTest.less';
 import {ScoreTable} from './ScoreTable';
-import ResultsPanel from './ResultsPanel';
 import Histogram from './Histogram';
 
 const {Text, Title} = Typography;
@@ -18,24 +17,21 @@ class ReactionTimeTest extends Component {
     this.timer = null;
     this.state = {
       testActive: false,
-      roundActive: false,
-      roundFailed: false,
-      triggered: false,
-      timeoutId: null,
+      phase: 'unplayed',
       round: null,
       times: [],
       results: null,
     };
   }
 
-  submitTimes = (user, times, timer) => {
+  submitTimes = (times, timer) => {
     console.log('submitting times.');
     fetch('/api/reaction-time', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({user, times, resolution: timer.resolution}),
+      body: JSON.stringify({times, resolution: timer.resolution}),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -63,35 +59,101 @@ class ReactionTimeTest extends Component {
     );
   };
 
-  generateStatusAndMessage() {
-    const state = this.state;
-    return state.roundFailed
-      ? [
-          'round-failed',
-          <div className="reaction-area-message">
-            <span className="message-main">Too quick!</span>
-            <span className="message-subtitle">Click to try again!</span>
-          </div>,
-        ]
-      : state.triggered
-      ? [
-          'triggered',
-          <div className="reaction-area-message">
-            <span className="message-main">Go! Go! Go!</span>
-          </div>,
-        ]
-      : state.roundActive
-      ? [
-          'round-active',
-          <div className="reaction-area-message">
+  startTest = () => {
+    this.timer = getTimerInfo(); // assumes timer resolution won't change mid run.
+    this.setState(
+      (state) =>
+        state.testActive
+          ? null // won't trigger update
+          : {
+              round: 1,
+              testActive: true,
+              times: [],
+            },
+      this.startRound
+    );
+  };
+
+  startRound = (roundNumber) => {
+    this.setState((state, props) => {
+      if (state.phase === 'waiting') return null;
+      this.triggerTime = null;
+      return {
+        phase: 'waiting',
+        round: roundNumber || state.round,
+        timeoutId: setTimeout(
+          () =>
+            this.setState({
+              phase: 'triggered',
+              timeoutId: null,
+            }),
+          Math.random() * (props.maxWait - props.minWait) + props.minWait
+        ),
+      };
+    });
+  };
+
+  handleClick = () => {
+    const now = performance.now();
+    const time = now - this.triggerTime;
+
+    this.setState((state, props) => {
+      switch (state.phase) {
+        case 'unplayed':
+          this.startTest();
+          return null;
+        case 'waiting': // a click was received before the test triggered.
+          clearTimeout(state.timeoutId); // prevent test from triggering
+          return {
+            phase: 'failed',
+            timeoutId: null,
+          };
+        case 'triggered': // test completed successfully
+          const times = state.times.concat([time]);
+          if (state.round < props.rounds) {
+            return {phase: 'roundComplete', times};
+          } else {
+            this.submitTimes(times, this.timer);
+            return {phase: 'results', times, testActive: false, round: null};
+          }
+        case 'failed':
+          this.startRound();
+          return null;
+        case 'roundComplete':
+          this.startRound(state.round + 1);
+          return null;
+        case 'results':
+          this.startTest();
+          return null;
+        default:
+          return null;
+      }
+    });
+  };
+
+  generateMessage = () => {
+    switch (this.state.phase) {
+      case 'unplayed':
+        return <span className="message-main">Click to begin.</span>;
+      case 'waiting':
+        return (
+          <>
             <span className="message-main">Wait for it...</span>
             <span className="message-subtitle">Click when you see green.</span>
-          </div>,
-        ]
-      : state.testActive
-      ? [
-          'between-rounds',
-          <div className="reaction-area-message">
+          </>
+        );
+      case 'triggered':
+        return <span className="message-main">Go! Go! Go!</span>;
+      case 'failed':
+        return (
+          <>
+            <span className="message-main">Too quick!</span>
+            <span className="message-subtitle">Click to try again!</span>
+          </>
+        );
+      case 'roundComplete':
+        return (
+          <>
             <Statistic
               className="result-time"
               value={this.state.times[this.state.times.length - 1]}
@@ -106,12 +168,11 @@ class ReactionTimeTest extends Component {
             <span className="message-small-subtitle">
               Click anywhere to continue...
             </span>
-          </div>,
-        ]
-      : state.times.length > 0
-      ? [
-          'test-complete',
-          <div className="reaction-area-message">
+          </>
+        );
+      case 'results':
+        return (
+          <>
             <span className="message-main">Results</span>
             <div className="results-summary">
               <div className="big-stats">
@@ -140,148 +201,64 @@ class ReactionTimeTest extends Component {
             <span className="message-small-subtitle">
               Click anywhere to play again.
             </span>
-          </div>,
-        ]
-      : [
-          'test-unstarted',
-          <div className="reaction-area-message">
-            <span className="message-main">Click to begin.</span>
-          </div>,
-        ];
-  }
-
-  handleTestStart = () => {
-    this.timer = getTimerInfo(); // assumes timer resolution won't change mid run.
-    this.setState(
-      (state) =>
-        state.testActive
-          ? null // won't trigger update
-          : {
-              round: 1,
-              testActive: true,
-              roundActive: false,
-              testComplete: false,
-              times: [],
-            },
-      this.handleRoundStart // callback for after state is set
-    );
+          </>
+        );
+      default:
+        return <span>adam made an oopsie.</span>;
+    }
   };
 
-  handleRoundStart = () => {
-    this.setState((state, props) => {
-      if (state.roundActive) return null;
-
-      this.triggerTime = null;
-      return {
-        roundActive: true,
-        roundFailed: false,
-        triggered: false,
-        timeoutId: setTimeout(
-          () =>
-            this.setState({
-              triggered: true,
-              timeoutId: null,
-            }),
-          Math.random() * (props.maxWait - props.minWait) + props.minWait
-        ),
-      };
-    });
-  };
-
-  handleActiveTestClick = () => {
-    const now = performance.now();
-    const time = now - this.triggerTime;
-
-    this.setState((state, props) => {
-      if (!state.roundActive) return null;
-
-      const newState = {
-        roundActive: false,
-        triggered: false,
-      };
-
-      if (state.triggered) {
-        // Click arrived after test triggered; round passed
-        newState.roundFailed = false;
-        newState.times = [...state.times, time];
-
-        if (state.round < props.rounds) {
-          // more rounds to go
-          newState.round = state.round + 1;
-        } else {
-          // test complete; submit scores
-          this.submitTimes(null, newState.times, this.timer); //TODO: user?
-          newState.testActive = false;
-          newState.round = null;
-        }
-      } else {
-        // Click arrived before test triggered; round failed
-        clearTimeout(this.state.timeoutId); // stop test from triggering
-        newState.roundFailed = true;
-        newState.timeoutId = null;
-      }
-      return newState;
-    });
+  calculateCutoff = () => {
+    if (!this.state.results) return 1;
+    const {
+      globalSummary: {q1, q3},
+      query: {data},
+    } = this.state.results;
+    return Math.max(2 * (q3 - q1) + q3, ...data);
   };
 
   render() {
     console.log(this.state);
-    const [status, message] = this.generateStatusAndMessage();
-    const {globalSummary, histogram, query} = this.state.results || {};
-    const {q1, q3} = globalSummary || {};
-    const cutoff = globalSummary
-      ? Math.max(2 * (q3 - q1) + q3, ...query.data)
-      : 1;
-    console.log(cutoff);
-    console.log(q1, q3);
-    console.log(2 * (q3 - q1) + q3);
-    console.log(globalSummary);
-    console.log(this.state.results);
+    const {results} = this.state;
     return (
       <div className="ReactionTimeTest">
         <Title className="page-title">Reaction Time Test</Title>
         <Text className="page-subtitle">"Subtitle!"</Text>
         <Space direction="vertical" size="large">
           <div
-            className={'reaction-area ' + status}
-            onMouseDown={
-              this.state.roundActive
-                ? this.handleActiveTestClick
-                : this.state.testActive
-                ? this.handleRoundStart
-                : this.handleTestStart
-            }
+            className={'reaction-area ' + this.state.phase}
+            onMouseDown={this.handleClick}
           >
-            {message}
+            <div className="reaction-area-message">
+              {this.generateMessage()}
+            </div>
           </div>
-          {this.state.results && (
+          {results && (
             <div className="results">
               <Card className="stats-card">
                 <div className="label-and-stat">
-                  <Text strong>Mean Time</Text>
+                  <Text strong>Mean Time</Text>{' '}
                   <Text>
-                    {this.state.results.query['mean'].toFixed(2)}
+                    {results.query['mean'].toFixed(2)}
                     ms
                   </Text>
                 </div>
                 <div className="label-and-stat">
-                  <Text strong>Mean Percentile</Text>
+                  <Text strong>Mean Percentile</Text>{' '}
                   <Text>
-                    {(
-                      (1 - this.state.results.query['meanQuantile']) *
-                      100
-                    ).toFixed(2)}
+                    {((1 - results.query['meanQuantile']) * 100).toFixed(2)}
                   </Text>
                 </div>
               </Card>
               <Histogram
                 className="histogram-card"
-                data={histogram}
-                cutoff={cutoff}
+                data={results.histogram}
+                cutoff={this.calculateCutoff()}
                 xAxis={{units: 'ms', digits: 0, title: 'Time'}}
                 yAxis={{title: 'Frequency'}}
-                points={query}
+                points={results.query}
                 title="Here's a Histogram!"
+                ascending={false}
               />
             </div>
           )}
@@ -292,7 +269,7 @@ class ReactionTimeTest extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     // Fires (almost) immediately after newly triggered component renders. Use to set triggerTime
-    if (this.state.triggered && !this.triggerTime) {
+    if (this.state.phase === 'triggered' && !this.triggerTime) {
       this.triggerTime = performance.now();
     }
   }
