@@ -31,6 +31,7 @@
           <node kind="schema">
             <name qname="@" />
             <name qname="seniorbenchmark" />
+            <name qname="senior_benchmark_testdata" />
           </node>
         </introspection-scope>
       </schema-mapping>

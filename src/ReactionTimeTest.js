@@ -24,14 +24,14 @@ class ReactionTimeTest extends Component {
     };
   }
 
-  submitTimes = (user, times, timer) => {
+  submitTimes = (times, timer) => {
     console.log('submitting times.');
     fetch('/api/reaction-time', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({user, times, resolution: timer.resolution}),
+      body: JSON.stringify({times, resolution: timer.resolution}),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -113,7 +113,7 @@ class ReactionTimeTest extends Component {
           if (state.round < props.rounds) {
             return {phase: 'roundComplete', times};
           } else {
-            this.submitTimes(null, times, this.timer); //TODO: user?
+            this.submitTimes(times, this.timer);
             return {phase: 'results', times, testActive: false, round: null};
           }
         case 'failed':
@@ -237,14 +237,14 @@ class ReactionTimeTest extends Component {
             <div className="results">
               <Card className="stats-card">
                 <div className="label-and-stat">
-                  <Text strong>Mean Time</Text>
+                  <Text strong>Mean Time</Text>{' '}
                   <Text>
                     {results.query['mean'].toFixed(2)}
                     ms
                   </Text>
                 </div>
                 <div className="label-and-stat">
-                  <Text strong>Mean Percentile</Text>
+                  <Text strong>Mean Percentile</Text>{' '}
                   <Text>
                     {((1 - results.query['meanQuantile']) * 100).toFixed(2)}
                   </Text>
@@ -258,6 +258,7 @@ class ReactionTimeTest extends Component {
                 yAxis={{title: 'Frequency'}}
                 points={results.query}
                 title="Here's a Histogram!"
+                ascending={false}
               />
             </div>
           )}

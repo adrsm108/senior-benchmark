@@ -1,13 +1,11 @@
-import React, {Component} from 'react';
+import React from 'react';
 import './FormModals.less';
-import {UserOutlined, LockOutlined} from '@ant-design/icons';
-import {Form, Input, Checkbox, Button, Typography, Modal, Divider} from 'antd';
-// import Login from './Login';
+import {LockOutlined, UserOutlined} from '@ant-design/icons';
+import {Divider, Form, Input, Modal, Typography} from 'antd';
 import {classConcat} from './utils';
 
-const {Item} = Form;
 const {Password} = Input;
-const {Title, Text, Link} = Typography;
+const {Text, Link} = Typography;
 
 const formItemLayout = (labelspan) => ({
   labelCol: {
@@ -19,21 +17,60 @@ const formItemLayout = (labelspan) => ({
     sm: {span: 24 - labelspan},
   },
 });
-const tailFormItemLayout = (labelspan) => ({
-  wrapperCol: {
-    xs: {span: 24, offset: 0},
-    sm: {span: 24 - labelspan, offset: labelspan},
-  },
-});
+
+const submitTo = (route, form, setLoading, callback) => () => {
+  form
+    .validateFields()
+    .then((values) => {
+      setLoading(true);
+      fetch(route, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(values),
+      })
+        .then((response) => {
+          setLoading(false);
+          if (response.ok) {
+            console.log('response ok');
+            response
+              .json()
+              .then((data) => {
+                console.log(data);
+                callback(data);
+              })
+              .catch((error) => console.error(error));
+          } else {
+            console.error('Got bad response:', response);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    })
+    .catch((info) => {
+      console.log('Validation failed:', info);
+    });
+};
 
 export function LoginModal(props) {
-  const {labelSpan, wrapperSpan, className, title, ...rest} = props;
+  const {
+    labelSpan,
+    wrapperSpan,
+    className,
+    title,
+    afterFinish,
+    ...rest
+  } = props;
   const layout = formItemLayout(5);
-  const tailLayout = tailFormItemLayout(5);
+  // const tailLayout = tailFormItemLayout(5);
+  const [loading, setLoading] = React.useState(false);
+  const [form] = Form.useForm();
+  // const history = useHistory();
+
   return (
     <Modal
-      className={classConcat('LoginModal', className)}
       {...rest}
+      className={classConcat('LoginModal', className)}
       title={
         <>
           <Text>{title}</Text>
@@ -46,21 +83,22 @@ export function LoginModal(props) {
           </Text>
         </>
       }
-      footer={[
-        <Button key="sub" form="Login" type="primary" htmlType="submit">
-          Login
-        </Button>,
-      ]}
+      confirmLoading={loading}
+      okText="Login"
+      onOk={submitTo('/auth', form, setLoading, (v) => {
+        afterFinish(v);
+        props.onCancel();
+      })}
     >
       <Form
+        form={form}
         {...layout}
+        scrollToFirstError
         hideRequiredMark
         layout="horizontal"
         name="Login"
-        onFinish={props.onFinish}
-        onFinishFailed={props.onFinishFailed}
       >
-        <Item
+        <Form.Item
           label="Username"
           name="username"
           rules={[{required: true, message: 'Please provide a username.'}]}
@@ -69,8 +107,8 @@ export function LoginModal(props) {
             prefix={<UserOutlined className="site-form-item-icon" />}
             placeholder="Username"
           />
-        </Item>
-        <Item
+        </Form.Item>
+        <Form.Item
           label="Password"
           name="password"
           className="password-item"
@@ -80,15 +118,7 @@ export function LoginModal(props) {
             prefix={<LockOutlined className="site-form-item-icon" />}
             placeholder="Password"
           />
-        </Item>
-        <Item
-          {...tailLayout}
-          className="checkbox-item"
-          name="remember"
-          valuePropName="checked"
-        >
-          <Checkbox defaultChecked={true}>Remember me</Checkbox>
-        </Item>
+        </Form.Item>
       </Form>
     </Modal>
   );
@@ -100,15 +130,23 @@ LoginModal.defaultProps = {
 };
 
 export function RegisterModal(props) {
-  const {labelSpan, wrapperSpan, className, title, ...rest} = props;
-
+  const {
+    labelSpan,
+    wrapperSpan,
+    className,
+    title,
+    afterFinish,
+    ...rest
+  } = props;
   const layout = formItemLayout(7);
-  const tailLayout = tailFormItemLayout(7);
+  // const tailLayout = tailFormItemLayout(7);
+  const [loading, setLoading] = React.useState(false);
+  const [form] = Form.useForm();
 
   return (
     <Modal
-      className={classConcat('RegisterModal', className)}
       {...rest}
+      className={classConcat('RegisterModal', className)}
       title={
         <>
           <Text>{title}</Text>
@@ -121,37 +159,37 @@ export function RegisterModal(props) {
           </Text>
         </>
       }
-      footer={[
-        <Button key="sub" form="Register" type="primary" htmlType="submit">
-          Register
-        </Button>,
-      ]}
+      confirmLoading={loading}
+      okText="Login"
+      onOk={submitTo('/register', form, setLoading, (v) => {
+        afterFinish(v);
+        props.onCancel();
+      })}
     >
       <Form
+        form={form}
         {...layout}
         scrollToFirstError
         hideRequiredMark
         layout="horizontal"
         name="Register"
-        onFinish={props.onFinish}
-        onFinishFailed={props.onFinishFailed}
       >
-        <Item
+        <Form.Item
           label="Username"
           name="username"
           rules={[{required: true, message: 'Please provide a username.'}]}
         >
           <Input />
-        </Item>
-        <Item
+        </Form.Item>
+        <Form.Item
           label="Password"
           name="password"
           className="password-item"
           rules={[{required: true, message: 'Please provide a password.'}]}
         >
           <Password />
-        </Item>
-        <Item
+        </Form.Item>
+        <Form.Item
           name="confirm"
           label="Confirm Password"
           dependencies={['password']}
@@ -172,17 +210,7 @@ export function RegisterModal(props) {
           ]}
         >
           <Password />
-        </Item>
-        <Item
-          {...tailLayout}
-          className="checkbox-item"
-          name="checkbox"
-          valuePropName="checked"
-        >
-          <Checkbox defaultChecked={true}>
-            This checkbox is nice for spacing.
-          </Checkbox>
-        </Item>
+        </Form.Item>
       </Form>
     </Modal>
   );

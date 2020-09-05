@@ -7,8 +7,8 @@
 @density-stroke-color: @theme-dark-blue;
 @density-stroke-width: 1px;
 
-@query-point-fill-color: @density-stroke-color;
-@query-mean-fill-color: @density-stroke-color;
+@query-point-fill-color: @theme-orange;
+@query-mean-fill-color: @theme-orange;
 
 .histogram-title {
   text-align: center;
@@ -35,6 +35,7 @@ div.plot-area {
 
 svg.root-svg {
   overflow: visible;
+  position: relative;
   //border: 1px solid black;
 }
 
@@ -63,14 +64,16 @@ span.x-axis-title, span.y-axis-title {
   justify-self: center;
   //text-anchor: middle;
   //display: inline-block;
+  span.axis-units {
+    font-style: italic;
+  }
 }
 span.x-axis-title {
-  text-align: end;
+  text-align: center;
 }
 span.y-axis-title {
   text-align: center;
   transform: rotate(-90deg) translateY(25%);
-  //transform: rotate(-90deg);
 }
 
 div.grid {
@@ -106,15 +109,14 @@ div.grid {
 
 
 .settings-icon {
-  align-self: flex-end;
   position: absolute;
   font-size: larger;
-  //right: 25px;
+  right: 10px;
+  top: 10px;
+  z-index: 3;
 }
 
 .settings-content {
-  //min-width: 250px;
-  //width: fit-content;
   display: flex;
   flex-direction: column;
   min-width: 250px;
@@ -122,9 +124,6 @@ div.grid {
 
 .bandwidth-slider {
   width: 100%;
-}
-
-rect.interaction-panel {
 }
 
 .bandwidth-slider-label {
@@ -140,9 +139,8 @@ rect.interaction-panel {
 
 .Histogram {
   width: fit-content;
-}
-
-.Histogram div.ant-card-body {
   display: flex;
   flex-flow: column wrap;
+  position: relative;
 }
+

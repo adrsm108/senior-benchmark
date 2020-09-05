@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import {Typography} from 'antd';
+import {Card, Table, Tooltip, Typography} from 'antd';
 import {
   classConcat,
   dist2d,
@@ -20,35 +20,42 @@ const ROUNDS = 15;
 function Target(props) {
   const {r, pos, rings, cr, points, ...rest} = props;
   const s = r - cr;
-  return (
-    <svg
-      x={pos[0]}
-      y={pos[1]}
-      {...rest}
-      className={classConcat('Target', points && 'result')}
-    >
+  console.log(points);
+  const ringCircles = mapLength(rings + 1, (n) => (
+    <circle
+      key={n}
+      r={(s * (rings - n)) / rings + cr}
+      className={classConcat(
+        'target-ring',
+        n === 0 && 'target-body', // first circle
+        n === rings && 'target-center', // last circle
+      )}
+    />
+  ));
+  return points ? (
+    <svg className="Target results" viewBox={`-${r} -${r} ${2 * r} ${2 * r}`}>
       <g className="target-group" key={Date.now()}>
-        {mapLength(rings + 1, (n) => (
-          <circle
-            key={n}
-            r={(s * (rings - n)) / rings + cr}
-            className={classConcat(
-              'target-ring',
-              n === 0 && 'target-body', // first circle
-              n === rings && 'target-center' // last circle
-            )}
-          />
+        {ringCircles}
+        {points.map((pt, i) => (
+          <Tooltip
+            key={i}
+            title={
+              <div style={{color: 'black'}}>
+                <div>Round {i + 1}</div>
+                <div>{((100 * Math.hypot(...pt)) / r).toFixed(2)}%</div>
+              </div>
+            }
+            color="#ffffff"
+          >
+            <circle className="target-point" cx={pt[0]} cy={pt[1]} r={2}/>
+          </Tooltip>
         ))}
-        {points &&
-          points.map((pt, i) => (
-            <circle
-              className="target-point"
-              key={i}
-              cx={pt[0]}
-              cy={pt[1]}
-              r={2}
-            />
-          ))}
+      </g>
+    </svg>
+  ) : (
+    <svg x={pos[0]} y={pos[1]} {...rest} className="Target">
+      <g className="target-group" key={Date.now()}>
+        {ringCircles}
       </g>
     </svg>
   );
@@ -66,7 +73,7 @@ function StartButton(props) {
   return (
     <svg x="50%" y="50%" className="StartButton">
       <g className="start-button-group">
-        <circle {...props} className="button-body" />
+        <circle {...props} className="button-body"/>
         <text className="button-text">{props.children}</text>
       </g>
     </svg>
@@ -100,7 +107,7 @@ class AimTest extends Component {
         time: time,
         targetDist: dist2d(
           spawnPos,
-          i ? this.testLog[i - 1].clickPos : this.startPos
+          i ? this.testLog[i - 1].clickPos : this.startPos,
         ),
         relError: dist2d(spawnPos, clickPos) / this.props.targetRadius,
         tX: spawnPos[0],
@@ -144,7 +151,7 @@ class AimTest extends Component {
         .catch((error) => {
           console.log('a badness!');
           console.error(error);
-        })
+        }),
     );
   };
 
@@ -153,11 +160,11 @@ class AimTest extends Component {
     const {current} = this.testArea;
     return current
       ? getRandomPointAtDistanceFrom(
-          current.clientWidth,
-          current.clientHeight,
-          this.state.targetPos,
-          2 * this.props.targetRadius
-        ).map(Math.floor)
+        current.clientWidth,
+        current.clientHeight,
+        this.state.targetPos,
+        2 * this.props.targetRadius,
+      ).map(Math.floor)
       : [0, 0];
   };
 
@@ -199,12 +206,12 @@ class AimTest extends Component {
         state.round === 1
           ? {cmaTime: time, cmaDist: dist2d(state.targetPos, clickPos)}
           : {
-              cmaTime: (time + state.round * state.cmaTime) / (state.round + 1),
-              cmaDist:
-                (dist2d(state.targetPos, clickPos) +
-                  state.round * state.cmaDist) /
-                (state.round + 1),
-            };
+            cmaTime: (time + state.round * state.cmaTime) / (state.round + 1),
+            cmaDist:
+              (dist2d(state.targetPos, clickPos) +
+                state.round * state.cmaDist) /
+              (state.round + 1),
+          };
 
       if (state.round < props.rounds) {
         newState.round = state.round + 1;
@@ -224,6 +231,7 @@ class AimTest extends Component {
   generateResultsPanel = () => {
     if (!this.state.results) return null;
     let {time, error, query} = this.state.results;
+    console.log(query);
     const timePoints = {
       mean: d3.mean(query, (d) => d.time),
       data: query.map((d) => d.time),
@@ -234,51 +242,69 @@ class AimTest extends Component {
     };
     return (
       <div className="results-panel">
-        <Histogram
-          className="histogram-card time"
-          data={time.histogram}
-          cutoff={time.q3 + 2 * (time.q3 - time.q1)}
-          xAxis={{units: 'ms', digits: 0, title: 'Time'}}
-          yAxis={{title: 'Frequency'}}
-          points={timePoints}
-          title="Time"
-        />
-        <svg transform="scale(1.3)">
-          <Target
-            points={query.map(({clickPos, targetPos}) =>
-              vecMinus(clickPos, targetPos)
-            )}
-          />
-        </svg>
-        <Histogram
-          className="histogram-card error"
-          data={error.histogram}
-          cutoff={1}
-          points={errorPoints}
-          xAxis={{digits: 2, title: 'Relative Error'}}
-          yAxis={{digits: 2, title: 'Frequency'}}
-          title="Accuracy"
-        />
+        <Card title="Time" className="results-card">
+          <div className="results-row time">
+            <Table
+              bordered
+              size="small"
+              columns={[
+                {title: 'Round', dataIndex: 'round'},
+                {title: 'Time (ms)', dataIndex: 'time'},
+              ]}
+              dataSource={query}
+              pagination={{hideOnSinglePage: true}}
+              rowKey="round"
+            />
+            <Histogram
+              className="histogram-card time"
+              data={time.histogram}
+              cutoff={time.q3 + 2 * (time.q3 - time.q1)}
+              xAxis={{units: 'ms', digits: 0, title: 'Time'}}
+              yAxis={{title: 'Frequency'}}
+              points={timePoints}
+              ascending={false}
+              // title="Time"
+            />
+          </div>
+        </Card>
+        <Card title="Accuracy" className="results-card">
+          <div className="results-row accuracy">
+            <div className="results-target">
+              <Target
+                points={query.map(({clickPos, targetPos}) =>
+                  vecMinus(clickPos, targetPos),
+                )}
+              />
+            </div>
+            <Histogram
+              className="histogram-card error"
+              data={error.histogram}
+              cutoff={1}
+              points={errorPoints}
+              xAxis={{digits: 2, title: 'Relative Error'}}
+              yAxis={{digits: 2, title: 'Frequency'}}
+              ascending={false}
+            />
+          </div>
+        </Card>
       </div>
     );
   };
 
   render() {
     let {style, targetRadius: radius, minWidth, maxWidth} = this.props;
-    console.log(this.state);
     return (
       <div className="AimTest" style={style}>
         <Title className="page-title">Aim Test</Title>
-        <Text className="page-subtitle">"Subtitle!"</Text>
-        <div className="test-and-status" style={{minWidth, maxWidth}}>
+        <div className="test-and-status">
           <div className="test-status">
             {this.state.testUnplayed ? (
               <>
-                <div />
+                <div/>
                 <Text strong className="label">
                   Click START to begin.
                 </Text>
-                <div />
+                <div/>
               </>
             ) : (
               <>
@@ -330,20 +356,6 @@ class AimTest extends Component {
           </div>
           {this.generateResultsPanel()}
         </div>
-
-        {/*{this.state.results && [*/}
-        {/*  <Divider key="divider">*/}
-        {/*    <Title>Results</Title>*/}
-        {/*  </Divider>,*/}
-        {/*  <Table*/}
-        {/*    key="table"*/}
-        {/*    bordered*/}
-        {/*    pagination={false}*/}
-        {/*    columns={RESULTS_COLUMNS}*/}
-        {/*    dataSource={this.state.results}*/}
-        {/*    rowKey="spawnTime"*/}
-        {/*  />,*/}
-        {/*]}*/}
       </div>
     );
   }
