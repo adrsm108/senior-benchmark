@@ -11,7 +11,7 @@ import {LoginModal, RegisterModal} from './FormModals';
 import {ReactComponent as SeniorBenchmarkLogo} from './images/seniorbenchmark_logo.svg';
 import {ReactComponent as NumberMemoryLogo} from './images/number_memory.svg';
 import {ReactComponent as AimTestLogo} from './images/aim_test.svg';
-import {ReactComponent as ReactionTimeLogo} from './images/clock.svg';
+import {ReactComponent as ReactionTimeLogo} from './images/reaction_time.svg';
 import UserPage from './UserPage';
 
 const {Title, Text, Link} = Typography;
@@ -70,7 +70,6 @@ class App extends Component {
   };
 
   render() {
-    console.log(this.state);
     return (
       <Layout id="app-layout">
         <Header id="app-header">

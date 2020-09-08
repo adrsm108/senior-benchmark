@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import * as d3 from 'd3';
-import {Card, Popover, Select, Slider, Switch, Typography} from 'antd';
+import {Popover, Select, Slider, Switch, Typography} from 'antd';
 import {EllipsisOutlined} from '@ant-design/icons';
-import {binnedKDE, classConcat, echo, identity, last, toOrdinal} from './utils';
+import {binnedKDE, classConcat, identity, last, toOrdinal} from './utils';
 import './Histogram.less';
 
 const {Option} = Select;
@@ -158,7 +158,7 @@ class Histogram extends Component {
                 .text(identity)
             );
           const pad = 10;
-          const {x: tx, y: ty, width: tw, height: th} = text.node().getBBox();
+          const {width: tw, height: th} = text.node().getBBox();
           path.attr(
             'd',
             `M 0, -5 

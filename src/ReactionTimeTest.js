@@ -247,7 +247,7 @@ class ReactionTimeTest extends Component {
                     </HelpfulText>
                   }
                   precision={1}
-                  value={100 * results.query['meanQuantile']}
+                  value={100 * (1 - results.query['meanQuantile'])}
                   suffix="th"
                 />,
               ]}

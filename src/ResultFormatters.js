@@ -1,4 +1,4 @@
-import {classConcat, mapLength, mean, ordinalEnding} from './utils';
+import {classConcat, mapLength, mean} from './utils';
 import React from 'react';
 import './ResultFormatters.less';
 import {Card, Statistic, Tooltip} from 'antd';

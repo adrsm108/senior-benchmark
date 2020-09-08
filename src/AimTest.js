@@ -16,12 +16,11 @@ import {HelpfulText, ResultsLayout} from './ResultFormatters';
 
 const {Text, Title} = Typography;
 
-const ROUNDS = 15;
+const ROUNDS = 25;
 
 function Target(props) {
   const {r, pos, rings, cr, points, ...rest} = props;
   const s = r - cr;
-  console.log(points);
   const ringCircles = mapLength(rings + 1, (n) => (
     <circle
       key={n}
@@ -89,253 +88,19 @@ class AimTest extends Component {
     this.testArea = React.createRef();
     this.testLog = [];
     this.timer = null;
-    // this.state = {
-    //   testUnplayed: true,
-    //   testActive: false,
-    //   round: null,
-    //   targetPos: null,
-    //   results: null,
-    //   cmaTime: null, // cumulative moving averages
-    //   cmaDist: null,
-    // };
     this.state = {
-      testUnplayed: false,
+      testUnplayed: true,
       testActive: false,
       round: null,
       targetPos: null,
-      results: {
-        time: {
-          stat: 'time',
-          n: 1053,
-          mean: 917.627,
-          sd: 506.481,
-          min: 315.11,
-          q1: 686.23,
-          median: 809.83,
-          q3: 994.53,
-          max: 8293.6,
-          histogram: {
-            bins: 137,
-            binStart: 0,
-            binWidth: 60.61,
-            data: [
-              {bin: 5, freq: 0.0009},
-              {bin: 6, freq: 0.0038},
-              {bin: 7, freq: 0.0133},
-              {bin: 8, freq: 0.0275},
-              {bin: 9, freq: 0.0722},
-              {bin: 10, freq: 0.1007},
-              {bin: 11, freq: 0.133},
-              {bin: 12, freq: 0.1121},
-              {bin: 13, freq: 0.1073},
-              {bin: 14, freq: 0.0912},
-              {bin: 15, freq: 0.0665},
-              {bin: 16, freq: 0.0503},
-              {bin: 17, freq: 0.0418},
-              {bin: 18, freq: 0.0323},
-              {bin: 19, freq: 0.0294},
-              {bin: 20, freq: 0.0152},
-              {bin: 21, freq: 0.0104},
-              {bin: 22, freq: 0.0152},
-              {bin: 23, freq: 0.0076},
-              {bin: 24, freq: 0.0076},
-              {bin: 25, freq: 0.0123},
-              {bin: 26, freq: 0.0057},
-              {bin: 27, freq: 0.0066},
-              {bin: 28, freq: 0.0038},
-              {bin: 29, freq: 0.0009},
-              {bin: 30, freq: 0.0019},
-              {bin: 31, freq: 0.0019},
-              {bin: 32, freq: 0.0019},
-              {bin: 33, freq: 0.0019},
-              {bin: 35, freq: 0.0028},
-              {bin: 37, freq: 0.0028},
-              {bin: 38, freq: 0.0009},
-              {bin: 39, freq: 0.0038},
-              {bin: 41, freq: 0.0019},
-              {bin: 43, freq: 0.0009},
-              {bin: 44, freq: 0.0019},
-              {bin: 46, freq: 0.0019},
-              {bin: 49, freq: 0.0009},
-              {bin: 50, freq: 0.0009},
-              {bin: 56, freq: 0.0009},
-              {bin: 58, freq: 0.0009},
-              {bin: 74, freq: 0.0009},
-              {bin: 106, freq: 0.0019},
-              {bin: 136, freq: 0.0009},
-            ],
-          },
-        },
-        error: {
-          stat: 'error',
-          n: 1053,
-          mean: 0.428311,
-          sd: 0.232856,
-          min: 0.02,
-          q1: null,
-          median: null,
-          q3: null,
-          max: 1.02,
-          histogram: {
-            bins: 21,
-            binStart: 0,
-            binWidth: 0.05,
-            data: [
-              {bin: 0, freq: 0.0218},
-              {bin: 1, freq: 0.0361},
-              {bin: 2, freq: 0.056},
-              {bin: 3, freq: 0.0617},
-              {bin: 4, freq: 0.0788},
-              {bin: 5, freq: 0.0788},
-              {bin: 6, freq: 0.0883},
-              {bin: 7, freq: 0.076},
-              {bin: 8, freq: 0.0684},
-              {bin: 9, freq: 0.075},
-              {bin: 10, freq: 0.0598},
-              {bin: 11, freq: 0.0598},
-              {bin: 12, freq: 0.0551},
-              {bin: 13, freq: 0.038},
-              {bin: 14, freq: 0.0313},
-              {bin: 15, freq: 0.0332},
-              {bin: 16, freq: 0.0256},
-              {bin: 17, freq: 0.0256},
-              {bin: 18, freq: 0.0171},
-              {bin: 19, freq: 0.0104},
-              {bin: 20, freq: 0.0028},
-            ],
-          },
-        },
-        query: [
-          {
-            targetPos: [635, 99],
-            clickPos: [641, 83],
-            round: 1,
-            time: 747.605,
-            targetDist: 303.727,
-            relError: 0.34176,
-          },
-          {
-            targetPos: [61, 204],
-            clickPos: [85, 203],
-            round: 2,
-            time: 932.41,
-            targetDist: 592.487,
-            relError: 0.480416,
-          },
-          {
-            targetPos: [386, 338],
-            clickPos: [395, 333],
-            round: 3,
-            time: 771.84,
-            targetDist: 329.888,
-            relError: 0.205913,
-          },
-          {
-            targetPos: [68, 399],
-            clickPos: [63, 396],
-            round: 4,
-            time: 883.7,
-            targetDist: 333.594,
-            relError: 0.116619,
-          },
-          {
-            targetPos: [633, 57],
-            clickPos: [657, 60],
-            round: 5,
-            time: 957.36,
-            targetDist: 663.19,
-            relError: 0.483735,
-          },
-          {
-            targetPos: [545, 348],
-            clickPos: [531, 330],
-            round: 6,
-            time: 568.245,
-            targetDist: 309.011,
-            relError: 0.45607,
-          },
-          {
-            targetPos: [3, 69],
-            clickPos: [10, 65],
-            round: 7,
-            time: 1423.33,
-            targetDist: 588.986,
-            relError: 0.161245,
-          },
-          {
-            targetPos: [530, 69],
-            clickPos: [492, 62],
-            round: 8,
-            time: 766.815,
-            targetDist: 520.015,
-            relError: 0.772787,
-          },
-          {
-            targetPos: [116, 338],
-            clickPos: [114, 336],
-            round: 9,
-            time: 829.545,
-            targetDist: 466.425,
-            relError: 0.0565685,
-          },
-          {
-            targetPos: [500, 17],
-            clickPos: [507, 43],
-            round: 10,
-            time: 1392.18,
-            targetDist: 500.756,
-            relError: 0.538516,
-          },
-          {
-            targetPos: [166, 291],
-            clickPos: [195, 279],
-            round: 11,
-            time: 734.615,
-            targetDist: 421.646,
-            relError: 0.627694,
-          },
-          {
-            targetPos: [602, 52],
-            clickPos: [608, 63],
-            round: 12,
-            time: 632.23,
-            targetDist: 466.024,
-            relError: 0.250599,
-          },
-          {
-            targetPos: [717, 365],
-            clickPos: [719, 363],
-            round: 13,
-            time: 946.175,
-            targetDist: 321.069,
-            relError: 0.0565685,
-          },
-          {
-            targetPos: [35, 65],
-            clickPos: [75, 85],
-            round: 14,
-            time: 905.58,
-            targetDist: 746.096,
-            relError: 0.894427,
-          },
-          {
-            targetPos: [304, 384],
-            clickPos: [300, 370],
-            round: 15,
-            time: 723.97,
-            targetDist: 376.619,
-            relError: 0.291204,
-          },
-        ],
-      },
-      cmaTime: 872.6999999994405,
-      cmaDist: 18.98714064604657,
+      results: null,
+      cmaTime: null, // cumulative moving averages
+      cmaDist: null,
     };
   }
 
-  submitTimes = (user) => {
+  submitTimes = () => {
     const bodyContent = {
-      user,
       data: this.testLog.map(({time, spawnPos, clickPos}, i) => ({
         round: i + 1,
         time: time,
@@ -354,7 +119,6 @@ class AimTest extends Component {
       targetRadius: this.props.targetRadius,
     };
 
-    console.log('submitting times: ', bodyContent);
     fetch('/api/aim-test', {
       method: 'POST',
       headers: {
@@ -364,7 +128,6 @@ class AimTest extends Component {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         this.updateResults(data.testId);
       })
       .catch((error) => {
@@ -374,16 +137,13 @@ class AimTest extends Component {
 
   updateResults = (resultsId) => {
     resultsId = Number.isInteger(resultsId) ? resultsId : null;
-    console.log('updating results');
     this.setState({results: null}, () =>
       fetch(`/api/aim-test?id=${resultsId}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log('setting results to', data);
           this.setState({results: data});
         })
         .catch((error) => {
-          console.log('a badness!');
           console.error(error);
         })
     );
@@ -465,7 +225,6 @@ class AimTest extends Component {
   generateResultsPanel = () => {
     if (!this.state.results) return null;
     let {time, error, query} = this.state.results;
-    console.log(query);
     const timePoints = {
       mean: d3.mean(query, (d) => d.time),
       data: query.map((d) => d.time),
@@ -513,7 +272,11 @@ class AimTest extends Component {
               ascending={false}
             />
           }
-          histogramTitle={<HelpfulText hint="Plots reaction times (x-axis) against the frequency with which similar times have been observed in other participants .">Time Histogram</HelpfulText>}
+          histogramTitle={
+            <HelpfulText hint="Plots reaction times (x-axis) against the frequency with which similar times have been observed in other participants .">
+              Time Histogram
+            </HelpfulText>
+          }
           table={
             <Table
               size="small"
@@ -565,8 +328,7 @@ class AimTest extends Component {
                   Average % Error
                 </HelpfulText>
               ),
-              value:
-                100 * errorPoints.mean,
+              value: 100 * errorPoints.mean,
               precision: 2,
               suffix: '%',
             },
@@ -602,7 +364,8 @@ class AimTest extends Component {
   };
 
   generateTestStatus = () => {
-    const {testUnplayed, testActive, targetRadius: radius} = this.state;
+    const {testUnplayed, testActive} = this.state;
+    const {targetRadius: radius} = this.props;
     return testUnplayed ? (
       <div className="test-status" key="unplayed">
         <div />
@@ -644,8 +407,7 @@ class AimTest extends Component {
   };
 
   render() {
-    console.log(this.state);
-    let {style, targetRadius: radius, minWidth, maxWidth} = this.props;
+    const {style, targetRadius: radius} = this.props;
     return (
       <div className="AimTest" style={style}>
         <Title className="page-title">Aim Test</Title>
