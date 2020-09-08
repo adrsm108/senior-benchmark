@@ -25,6 +25,19 @@
   });
 }
 
+button.account-action-button {
+  color: white;
+  border: 1px solid white;
+  opacity: 0.8;
+}
+
+button.account-action-button:hover {
+  opacity: 1;
+  background-color: white;
+  color: @theme-light-blue;
+  border: 1px solid white;
+}
+
 #account-actions.not-loggedin {
   margin-left: auto;
   display: flex;
@@ -192,6 +205,12 @@
     &:hover {
       background-color: lighten(@theme-dark-blue, 2%);
       flex-grow: 3;
+
+      .skewed-div-contents > .icon-image,
+      .skewed-div-contents > .icon-text {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 
@@ -201,6 +220,12 @@
     &:hover {
       background-color: lighten(@theme-blue, 2%);
       flex-grow: 3;
+
+      .skewed-div-contents > .icon-image,
+      .skewed-div-contents > .icon-text {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 
@@ -210,16 +235,22 @@
     &:hover {
       background-color: lighten(@theme-light-blue, 2%);
       flex-grow: 3;
+
+      .skewed-div-contents > .icon-image,
+      .skewed-div-contents > .icon-text {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 
   > :nth-child(5) {
     background-color: @theme-lightest-blue;
     .set-responsive(flex; {
-      xs: 1 0 80px;
-      sm: 0.75 0 85px;
-      md: 0.75 0 85px;
-      lg: 0.5 0 85px;
+      xs: 1 0 60px;
+      sm: 0.75 0 60px;
+      md: 0.75 0 70px;
+      lg: 0.5 0 75px;
     });
   }
 }
@@ -227,32 +258,54 @@
 .skewed-div-contents {
   color: @theme-white;
   transform-origin: inherit;
-  transform: skewX(-@skew-angle);
+  transform: skewX(-@skew-angle) translateX(-24px);
   background-color: transparent;
   display: flex;
-  flex-flow: row nowrap;
+  //flex-flow: row nowrap;
+  flex-flow: column;
+
   align-items: center;
   justify-content: center;
   text-wrap: none;
-  position: absolute;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  //border: 4px solid coral;
   //width: max-content;
 
-  .icon-image {
+  & > .icon-image {
     fill: @theme-white;
-    width: 56px;
+    //width: 56px;
+    opacity: 0.5;
+    .set-responsive(width; {
+      xs: 42px;
+      sm: 48px;
+      md: 50px;
+      lg: 56px;
+    });
     height: auto;
+    transform: translateY(15px);
   }
-  span {
-    display: none;
+  & > .icon-text {
+    white-space: nowrap;
+    text-align: center;
+    line-height: normal;
+    margin-top: 5px;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .icon-image,
+  .icon-text {
+    transition: transform 0.5s ease, opacity 0.5s ease;
   }
 }
 
 #app-footer {
   background: @footer-background;
   color: @footer-color;
-  padding: 10px 32px;
+  padding: 32px 32px 20px;
   font-style: italic;
   justify-content: center;
   .footer-content {

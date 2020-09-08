@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import {Card, Space, Statistic, Typography} from 'antd';
+import {Statistic, Table, Typography} from 'antd';
 import {getTimerInfo, mean} from './utils';
 
 import './ReactionTimeTest.less';
-import {ScoreTable} from './ScoreTable';
+import {HelpfulText, ResultsLayout, ScoreTable} from './ResultFormatters';
 import Histogram from './Histogram';
 
-const {Text, Title} = Typography;
+const {Title} = Typography;
 
 class ReactionTimeTest extends Component {
   constructor(props) {
@@ -25,7 +25,6 @@ class ReactionTimeTest extends Component {
   }
 
   submitTimes = (times, timer) => {
-    console.log('submitting times.');
     fetch('/api/reaction-time', {
       method: 'POST',
       headers: {
@@ -44,16 +43,13 @@ class ReactionTimeTest extends Component {
 
   updateResults = (resultsId) => {
     this.resultsId = resultsId;
-    console.log('updating results');
     this.setState({results: null}, () =>
       fetch(`/api/reaction-time?id=${resultsId}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
           this.setState({results: data});
         })
         .catch((error) => {
-          console.log('a badness!');
           console.error(error);
         })
     );
@@ -172,36 +168,21 @@ class ReactionTimeTest extends Component {
         );
       case 'results':
         return (
-          <>
-            <span className="message-main">Results</span>
-            <div className="results-summary">
-              <div className="big-stats">
-                <div className="stat-label">Average</div>
-                <Statistic
-                  className="result-time"
-                  value={mean(this.state.times)}
-                  precision={Math.min(this.timer.precision + 2, 2)}
-                  suffix="ms"
-                />
-                <div className="stat-label">Fastest</div>
-                <Statistic
-                  className="result-time"
-                  value={Math.min(...this.state.times)}
-                  precision={this.timer.precision}
-                  suffix="ms"
-                />
-              </div>
-              <div className="divider" />
-              <ScoreTable
-                data={this.state.times}
-                rounds={this.props.rounds}
-                precision={this.timer.precision}
-              />
-            </div>
-            <span className="message-small-subtitle">
-              Click anywhere to play again.
+          <div className="results-summary">
+            <span className="message-subtitle">Your average time was:</span>
+            <Statistic
+              className="result-time"
+              value={mean(this.state.times)}
+              precision={Math.min(this.timer.precision + 2, 2)}
+              suffix="ms"
+            />
+            <span className="message-subtitle">
+              Check below to see how you compare to others.
             </span>
-          </>
+            <span className="message-small-subtitle">
+              Or, click anywhere to play again.
+            </span>
+          </div>
         );
       default:
         return <span>adam made an oopsie.</span>;
@@ -218,51 +199,97 @@ class ReactionTimeTest extends Component {
   };
 
   render() {
-    console.log(this.state);
     const {results} = this.state;
     return (
       <div className="ReactionTimeTest">
-        <Title className="page-title">Reaction Time Test</Title>
-        <Text className="page-subtitle">"Subtitle!"</Text>
-        <Space direction="vertical" size="large">
-          <div
-            className={'reaction-area ' + this.state.phase}
-            onMouseDown={this.handleClick}
-          >
-            <div className="reaction-area-message">
-              {this.generateMessage()}
-            </div>
-          </div>
-          {results && (
-            <div className="results">
-              <Card className="stats-card">
-                <div className="label-and-stat">
-                  <Text strong>Mean Time</Text>{' '}
-                  <Text>
-                    {results.query['mean'].toFixed(2)}
-                    ms
-                  </Text>
-                </div>
-                <div className="label-and-stat">
-                  <Text strong>Mean Percentile</Text>{' '}
-                  <Text>
-                    {((1 - results.query['meanQuantile']) * 100).toFixed(2)}
-                  </Text>
-                </div>
-              </Card>
-              <Histogram
-                className="histogram-card"
-                data={results.histogram}
-                cutoff={this.calculateCutoff()}
-                xAxis={{units: 'ms', digits: 0, title: 'Time'}}
-                yAxis={{title: 'Frequency'}}
-                points={results.query}
-                title="Here's a Histogram!"
-                ascending={false}
-              />
-            </div>
-          )}
-        </Space>
+        <Title className="page-title">Reaction Time</Title>
+        <div
+          className={'reaction-area ' + this.state.phase}
+          onMouseDown={this.handleClick}
+        >
+          <div className="reaction-area-message">{this.generateMessage()}</div>
+        </div>
+        {results && (
+          <>
+            <Title className="page-title">Results</Title>
+            <ResultsLayout
+              stats={[
+                <Statistic
+                  key="best"
+                  title={
+                    <HelpfulText hint="Your fastest recorded time.">
+                      Best Round
+                    </HelpfulText>
+                  }
+                  precision={this.timer.precision}
+                  value={Math.min(...results.query.data)}
+                  suffix="ms"
+                />,
+                <Statistic
+                  key="avg"
+                  title={
+                    <HelpfulText hint="The mean time over all 5 rounds.">
+                      Average Time
+                    </HelpfulText>
+                  }
+                  precision={2}
+                  value={results.query['mean']}
+                  suffix="ms"
+                />,
+                <Statistic
+                  key="percentile"
+                  title={
+                    <HelpfulText
+                      hint="The percentage of attempts which have yielded times greater than or equal to your average time.
+                    Being in the 75th percentile means your average reaction time was faster than 75% of all times recorded by this test."
+                    >
+                      Percentile
+                    </HelpfulText>
+                  }
+                  precision={1}
+                  value={100 * results.query['meanQuantile']}
+                  suffix="th"
+                />,
+              ]}
+              statsTitle="Your Stats"
+              table={
+                <Table
+                  columns={[
+                    {title: 'Round', dataIndex: 'round', align: 'center'},
+                    {
+                      title: 'Time',
+                      dataIndex: 'time',
+                      align: 'center',
+                      render: (s) => <span>{`${s.toFixed(2)}ms`}</span>,
+                    },
+                  ]}
+                  dataSource={results.query.data.map((d, i) => ({
+                    round: i + 1,
+                    time: d,
+                  }))}
+                  rowKey={(rec) => rec.round.toString() + rec.time}
+                  pagination={false}
+                />
+              }
+              tableTitle="Your Times"
+              histogram={
+                <Histogram
+                  data={results.histogram}
+                  cutoff={this.calculateCutoff()}
+                  xAxis={{units: 'ms', digits: 0, title: 'Time'}}
+                  yAxis={{title: 'Frequency'}}
+                  points={results.query}
+                  ascending={false}
+                />
+              }
+              histogramTitle={
+                <HelpfulText hint="What? It's a histogram.">
+                  Global Times
+                </HelpfulText>
+              }
+            />
+          </>
+        )}
       </div>
     );
   }
@@ -284,7 +311,7 @@ class ReactionTimeTest extends Component {
 ReactionTimeTest.defaultProps = {
   rounds: 5,
   minWait: 1000, // milliseconds
-  maxWait: 5000,
+  maxWait: 6000,
   // test settings
   // minWait: 100, // milliseconds
   // maxWait: 1000,

@@ -1,4 +1,5 @@
 @import 'theme';
+@import 'mixins';
 
 @histogram-bar-fill-color: darken(@theme-light-gray, 10%);
 @histogram-bar-stroke-color: fade(shade(@histogram-bar-fill-color), 100%);
@@ -14,10 +15,13 @@
   text-align: center;
 }
 
-div.plot-area {
-  display: flex;
-  justify-content: center;
-}
+//div.plot-area {
+//  display: flex;
+//  justify-content: center;
+//  width: 100%;
+//  height: 50px;
+//  background: blue;
+//}
 
 .query-point {
   fill: @query-point-fill-color;
@@ -33,13 +37,13 @@ div.plot-area {
   fill: steelblue;
 }
 
-svg.root-svg {
+svg.root-svg:not(:root) {
   overflow: visible;
   position: relative;
   //border: 1px solid black;
 }
 
-g.root-transform  {
+g.root-transform {
   visibility: visible;
   pointer-events: visible;
 }
@@ -56,7 +60,8 @@ div.title-and-switch {
   }
 }
 
-span.x-axis-title, span.y-axis-title {
+span.x-axis-title,
+span.y-axis-title {
   //fill: black;
   font-size: 12pt;
   display: block;
@@ -71,6 +76,7 @@ span.x-axis-title, span.y-axis-title {
 span.x-axis-title {
   text-align: center;
 }
+
 span.y-axis-title {
   text-align: center;
   transform: rotate(-90deg) translateY(25%);
@@ -107,12 +113,15 @@ div.grid {
   fill: @histogram-bar-fill-color;
 }
 
+.tooltip-text {
+  text-size: 1em;
+}
 
 .settings-icon {
   position: absolute;
   font-size: larger;
-  right: 10px;
-  top: 10px;
+  right: 24px;
+  top: 24px;
   z-index: 3;
 }
 
@@ -126,6 +135,12 @@ div.grid {
   width: 100%;
 }
 
+.callout-background {
+  fill: fade(@theme-white, 80%);
+  //stroke-width: 0.5px;
+  stroke: @theme-gray;
+}
+
 .bandwidth-slider-label {
   margin-top: 15px;
   display: flex;
@@ -137,10 +152,40 @@ div.grid {
   }
 }
 
-.Histogram {
-  width: fit-content;
-  display: flex;
-  flex-flow: column wrap;
-  position: relative;
-}
+.hist-content {
+  display: grid;
+  grid: ~'auto auto auto / auto 1fr';
+  height: fit-content;
 
+  .hist-title {
+    grid-area: ~'1/1/1/span 2';
+    text-align: center;
+    margin-bottom: 0;
+    grid-column: span;
+  }
+
+  div.hist {
+    overflow: visible;
+  }
+
+  span.axis-title {
+    display: inline-block;
+    font-size: 1.1em;
+
+    &.y {
+      display: inline-block;
+      text-align: center;
+      writing-mode: vertical-rl;
+      line-height: 2;
+      transform: rotate(180deg) translateX(3px);
+    }
+
+    &.x {
+      margin: 0 auto;
+    }
+
+    .axis-title-unit {
+      font-style: italic;
+    }
+  }
+}

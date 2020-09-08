@@ -61,11 +61,16 @@ class Histogram extends Component {
     let tot = 0;
     const cumData = [0, ...data.map((freq) => (tot += freq))];
 
-    const quantile = d3
-      .scaleLinear()
-      .domain([...cumData.keys(), last(rawData).bin])
-      .range([...cumData, 1])
-      .clamp(true);
+    const quantile = this.props.discreteQuantile
+      ? d3
+          .scaleThreshold()
+          .domain([...cumData.keys()].map(x => x - 0.5))
+          .range([...cumData, 1])
+      : d3
+          .scaleLinear()
+          .domain([...cumData.keys(), last(rawData).bin])
+          .range([...cumData, 1])
+          .clamp(true);
 
     const yScale = d3
       .scaleLinear()
@@ -129,10 +134,19 @@ class Histogram extends Component {
             .attr('y1', 0)
             .attr('y2', innerHeight - translateY);
 
-          const annotation = g
+          const path = g
+            .selectAll('path')
+            .data([null])
+            .join('path')
+            .attr('class', 'callout-background');
+
+          const text = g
             .selectAll('text')
             .data([null])
             .join('text')
+            .attr('font-size', '0.8rem')
+            .attr('fill', 'black')
+            .attr('text-anchor', 'middle')
             .call((text) =>
               text
                 .selectAll('tspan')
@@ -143,9 +157,21 @@ class Histogram extends Component {
                 .style('font-weight', (_, i) => (i ? null : 'bold'))
                 .text(identity)
             );
-
-          const {y, width: w} = annotation.node().getBBox();
-          annotation.attr('transform', `translate(${-w / 2},${y - 15})`);
+          const pad = 10;
+          const {x: tx, y: ty, width: tw, height: th} = text.node().getBBox();
+          path.attr(
+            'd',
+            `M 0, -5 
+             l -5, -5
+             H -${(tw + pad) / 2}
+             v -${th + pad}
+             H ${(tw + pad) / 2}
+             v ${th + pad}
+             H 5
+             z
+             `
+          );
+          text.attr('transform', `translate(0, -${(th + pad) / 2 + pad})`);
         },
       },
     });
@@ -172,8 +198,10 @@ class Histogram extends Component {
       .data([null])
       .join('svg')
       .attr('class', 'root-svg')
-      .attr('width', this.props.width)
-      .attr('height', this.props.height);
+      .attr('viewBox', `0 0 ${this.props.width} ${this.props.height}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet');
+    // .attr('width', this.props.width)
+    // .attr('height', this.props.height);
 
     rootSvg
       .selectAll('defs')
@@ -218,8 +246,6 @@ class Histogram extends Component {
       .call(d3.axisLeft(yScale).tickFormat((y) => y.toFixed(yAxis.digits)))
       .selectAll('text')
       .attr('class', 'y-axis-text');
-
-    //TODO: axis labels
 
     // Draw bars
     root
@@ -291,7 +317,7 @@ class Histogram extends Component {
       xAxis,
       padding,
     } = this.state;
-    const {points, ascending} = this.props;
+    const {points, ascending, percentilePrecision} = this.props;
     const pointData =
       points && showDensity && showPoints
         ? points.data.map(this.props.pointsAccessor)
@@ -421,10 +447,11 @@ class Histogram extends Component {
         const y = interp(px + shift);
         tooltip
           .attr('transform', `translate(${mx},${yScale(y)})`)
+          .raise()
           .call(
             callout,
             `${xScaleData(x).toFixed(xAxis.digits)}${xAxis.units}\n${toOrdinal(
-              (100 * (ascending ? quantile(x) : 1 - quantile(x))).toFixed()
+              (100 * (ascending ? quantile(x) : 1 - quantile(x))).toFixed(percentilePrecision)
             )} percentile`,
             yScale(y)
           );
@@ -448,8 +475,12 @@ class Histogram extends Component {
       bandwidth,
       kernel,
     } = this.state;
+    const {minWidth, maxWidth} = this.props;
     return (
-      <div className={classConcat('Histogram', this.props.className)}>
+      <div
+        className={classConcat('Histogram', this.props.className)}
+        style={{minWidth, maxWidth}}
+      >
         <Popover
           trigger="click"
           placement="rightTop"
@@ -483,12 +514,12 @@ class Histogram extends Component {
                 defaultValue={kernel}
                 onChange={(value) => this.setState({kernel: value})}
               >
-                <Option value="uniform"> Uniform</Option>
+                <Option value="uniform">Uniform</Option>
                 <Option value="triangular">Triangular</Option>
-                <Option value="quadratic"> Quadratic</Option>
-                <Option value="gaussian"> Gaussian</Option>
-                <Option value="sigmoid"> Sigmoid</Option>
-                <Option value="cosine"> Cosine</Option>
+                <Option value="quadratic">Quadratic</Option>
+                <Option value="gaussian">Gaussian</Option>
+                <Option value="sigmoid">Sigmoid</Option>
+                <Option value="cosine">Cosine</Option>
               </Select>
               <div className="bandwidth-slider-label">
                 <Text strong>Bandwidth</Text>
@@ -512,26 +543,25 @@ class Histogram extends Component {
         >
           <EllipsisOutlined className="settings-icon" />
         </Popover>
-        {this.props.title !== null && (
-          <Title className="histogram-title" level={3}>
+        <div className="hist-content">
+          <Title level={3} className="hist-title">
             {this.props.title}
           </Title>
-        )}
-
-        <div className="plot-area" ref={this.ref}>
-          <Text className="y-axis-title">
-            {yAxis.title}
-            {yAxis.units && (
-              <Text className="axis-units">{` (${yAxis.units})`}</Text>
-            )}
+          <Text className="axis-title y">
+            {yAxis.title}{' '}
+            <Text className="axis-title-unit">
+              {yAxis.units && `(${yAxis.units})`}
+            </Text>
+          </Text>
+          <div className="hist" ref={this.ref} />
+          <div className="empty-corner" />
+          <Text className="axis-title x">
+            {xAxis.title}{' '}
+            <Text className="axis-title-unit">
+              {xAxis.units && `(${xAxis.units})`}
+            </Text>
           </Text>
         </div>
-        <Text className="x-axis-title">
-          {xAxis.title}
-          {xAxis.units && (
-            <Text className="axis-units">{` (${xAxis.units})`}</Text>
-          )}
-        </Text>
       </div>
     );
   }
@@ -567,6 +597,8 @@ Histogram.defaultProps = {
   padding: 30,
   width: 660,
   height: 400,
+  maxWidth: 800,
+  minWidth: 400,
   defaultBandwidth: 2,
   defaultKernel: 'quadratic',
   xAxis: {},
@@ -574,6 +606,8 @@ Histogram.defaultProps = {
   title: null,
   className: null,
   points: null,
+  discreteQuantile: false,
+  percentilePrecision: 0,
   pointsAccessor: (x) => x,
   showHistogram: true,
   showDensity: true,
