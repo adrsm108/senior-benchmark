@@ -16,10 +16,10 @@
 
 .ReactionTimeTest {
   background: @content-background;
-  padding: 32px 0;
+  //padding: 32px 0;
   margin: 0 auto;
   width: 100%;
-  min-width: fit-content;
+  //min-width: fit-content;
 
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@
 
 .reaction-area {
   color: white;
-  min-height: 600px;
+  min-height: 500px;
   text-align: center;
   cursor: pointer;
   user-select: none;
@@ -132,7 +132,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 32px 0;
+  padding: 32px;
 
   .set-responsive(flex-flow; {
     xs: column nowrap;
@@ -179,6 +179,64 @@ div.results {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-evenly;
+  align-items: center;
+  padding: 0;
+}
+
+
+div.lower-results {
+  margin: 24px 0;
+  display: flex;
+  flex-flow: row wrap;
   align-items: flex-start;
-  padding: 0px;
+  justify-content: center;
+  gap: 24px;
+
+  div.results-stat-card {
+    flex: 1 1 150px;
+
+    div.ant-statistic {
+      display: inline-block;
+      margin-bottom: 0;
+      text-wrap: none;
+    }
+
+    & > div.ant-card-body {
+      display: flex;
+
+      flex-flow: row wrap;
+      justify-content: space-evenly;
+      gap: 20px;
+
+      &::before, &::after {
+        display: none;
+      }
+
+    }
+  }
+
+  div.histogram-card {
+    flex-grow: 1;
+    width: fit-content;
+    height: fit-content;
+
+    div.ant-card-body {
+      display: flex;
+      justify-content: center;
+      height: auto;
+    }
+  }
+
+  div.ant-statistic {
+    margin-bottom: 10px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+div.results-summary {
+  display: flex;
+  flex-direction: column;
+
 }

@@ -17,5 +17,6 @@
     <orderEntry type="library" name="@types/d3-scale" level="application" />
     <orderEntry type="library" name="@types/d3-axis" level="application" />
     <orderEntry type="library" name="@types/d3-selection-multi" level="application" />
+    <orderEntry type="library" name="@types/express" level="application" />
   </component>
 </module>

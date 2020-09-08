@@ -11,7 +11,7 @@ import {LoginModal, RegisterModal} from './FormModals';
 import {ReactComponent as SeniorBenchmarkLogo} from './images/seniorbenchmark_logo.svg';
 import {ReactComponent as NumberMemoryLogo} from './images/number_memory.svg';
 import {ReactComponent as AimTestLogo} from './images/aim_test.svg';
-import {ReactComponent as ReactionTimeLogo} from './images/reaction_time.svg';
+import {ReactComponent as ReactionTimeLogo} from './images/clock.svg';
 import UserPage from './UserPage';
 
 const {Title, Text, Link} = Typography;
@@ -93,9 +93,9 @@ class App extends Component {
                     {this.state.username}
                   </RouteLink>
                   <Button
-                    type="default"
+                    type="ghost"
                     size="small"
-                    className="action"
+                    className="account-action-button"
                     onClick={this.handleLogout}
                   >
                     Logout
@@ -105,16 +105,16 @@ class App extends Component {
                 <>
                   <Button
                     size="small"
-                    type="default"
-                    className="action"
+                    type="ghost"
+                    className="account-action-button"
                     onClick={() => this.showModal('register')}
                   >
                     Register
                   </Button>
                   <Button
                     size="small"
-                    type="default"
-                    className="action"
+                    type="ghost"
+                    className="account-action-button"
                     onClick={() => this.showModal('login')}
                   >
                     Login
@@ -133,8 +133,8 @@ class App extends Component {
               onClick={() => this.props.history.push('/reaction-time')}
             >
               <div className="skewed-div-contents">
-                <ReactionTimeLogo className="icon-image" />
-                <span>Reaction Time</span>
+                  <ReactionTimeLogo className="icon-image"/>
+                <div className="icon-text">Reaction Time</div>
               </div>
             </div>
             <div
@@ -143,7 +143,7 @@ class App extends Component {
             >
               <div className="skewed-div-contents">
                 <NumberMemoryLogo className="icon-image" />
-                <span>Number Memory</span>
+                <div className="icon-text">Number Memory</div>
               </div>
             </div>
             <div
@@ -152,7 +152,7 @@ class App extends Component {
             >
               <div className="skewed-div-contents">
                 <AimTestLogo className="icon-image" />
-                <span>Aim Test</span>
+                <div className="icon-text">Aim Test</div>
               </div>
             </div>
             <div className="skewed-div" />

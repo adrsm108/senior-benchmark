@@ -403,33 +403,6 @@ export function echo(val, ...prefix) {
   return val;
 }
 
-// bisection method for finding y coordinate on a path at a particular x
-// Given:
-//    path: DOM node for an svg path element tracing a parametric path
-//      p(t) = { x: x(t), y: y(t) }, 0 <= t <= path.totalLength(), where x(t) is monotonic,
-//    mx: a real number
-// Returns: the point p(t*) = { x: x(t*), y: y(t*) }, where t* is the integer minimizing |x(t*) - mx|.
-/* TODO: You could probably implement Newton's method if you could figure out how d3 generates
-    its control points for the spline. That might be cool. */
-export function getPointOnPathFromX(path, mx) {
-  const p = (t) => path.getPointAtLength(t);
-  let t, pt;
-  let a = 0,
-    b = path.getTotalLength();
-  if (p(b).x - p(a).x < 0) [a, b] = [b, a]; // ensure x(a) <= x(b)
-  while (true) {
-    t = Math.floor((a + b) / 2); // t is an integer
-    pt = p(t);
-
-    if ((a === t || b === t) && pt.x !== mx) /* close enough! */ break;
-    else if (pt.x > mx) b = t;
-    else if (pt.x < mx) a = t;
-    else break; //position found
-  }
-
-  return pt;
-}
-
 /**
  * Shuffles the array `arr` in place, using the
  * [Fisher-Yates algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
@@ -528,16 +501,21 @@ export function getRandomPointAtDistanceFrom(maxX, maxY, point, minD) {
  * @returns {string}
  */
 export function toOrdinal(n) {
+  return `${n.toString()}${ordinalEnding(n)}`;
+}
+
+/**
+ * Attempts to return the correct ending for a number in its (english) ordinal notation.
+ * i.e. `ordinalEnding(21)` produces `'st'`, `ordinalEnding(11)` produces `'th'`, etc...
+ * @param {number|string} n
+ * @returns {string}
+ */
+export function ordinalEnding(n) {
   n = n.toString();
-  return `${n}${
-    /^(\d*[02-9])?1$/.test(n) // matches number string ending in 1 but not 11.
-      ? 'st'
-      : /^(\d*[02-9])?2$/.test(n) // matches number string ending in 2 but not 12.
-      ? 'nd'
-      : /^(\d*[02-9])?3$/.test(n) // matches number string ending in 3 but not 13.
-      ? 'rd'
-      : 'th'
-  }`;
+  if (/^(\d*\.?\d*[02-9.])?[123]$/.test(n)) {
+    return n.endsWith('1') ? 'st' : n.endsWith('2') ? 'nd' : 'rd';
+  }
+  return 'th';
 }
 
 function vecCheck(v1, v2) {
@@ -548,10 +526,13 @@ function vecCheck(v1, v2) {
     )} are not of equal length.`
   );
 }
-export const vecPlus = (v1, v2) => vecCheck(v1, v2) && v1.map((vi, i) => vi + v2[i]);
-export const vecMinus = (v1, v2) => vecCheck(v1, v2) && v1.map((vi, i) => vi - v2[i]);
+export const vecPlus = (v1, v2) =>
+  vecCheck(v1, v2) && v1.map((vi, i) => vi + v2[i]);
+export const vecMinus = (v1, v2) =>
+  vecCheck(v1, v2) && v1.map((vi, i) => vi - v2[i]);
 export const vecScale = (v, a) => v.map((vi) => a * vi);
-export const vecLength = v => Math.hypot(...v);
-export const vecDot = (v1, v2) => vecCheck(v1, v2) && v1.reduce((s, vi, i) => s + vi * v2[i], 0);
+export const vecLength = (v) => Math.hypot(...v);
+export const vecDot = (v1, v2) =>
+  vecCheck(v1, v2) && v1.reduce((s, vi, i) => s + vi * v2[i], 0);
 
 export {mod, modChop, getTimerInfo, getPrecision};

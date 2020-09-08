@@ -1,6 +1,8 @@
-import {classConcat, mapLength, mean} from './utils';
+import {classConcat, mapLength, mean, ordinalEnding} from './utils';
 import React from 'react';
-import './ScoreTable.less';
+import './ResultFormatters.less';
+import {Card, Statistic, Tooltip} from 'antd';
+import {QuestionCircleOutlined} from '@ant-design/icons/lib';
 
 function formatDelta(delta, prec) {
   return typeof delta !== 'number' || Number.isNaN(delta) ? (
@@ -70,4 +72,65 @@ ScoreTable.defaultProps = {
   data: [],
   rounds: 5,
   precision: 2,
+};
+
+export function ResultsLayout(props) {
+  return (
+    <div
+      className={classConcat('ResultsLayout', props.className)}
+      style={props.style}
+    >
+      <div className="stats-and-table-wrapper">
+        {props.stats.length > 0 && (
+          <Card className="results-card stats" title={props.statsTitle}>
+            {props.stats.map((s) =>
+              React.isValidElement(s) ? s : <Statistic key={s.title} {...s} />
+            )}
+          </Card>
+        )}
+        {props.table && (
+          <Card className="results-card table" title={props.tableTitle}>
+            {props.table}
+          </Card>
+        )}
+      </div>
+      {props.histogram && (
+        <Card
+          className="results-card histogram"
+          title={props.histogramTitle || ''}
+        >
+          {props.histogram}
+        </Card>
+      )}
+      {React.Children.map(props.children, (child, i) => (
+        <Card className={`results-card child`} key={child.props.key || i}>
+          {child}
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+ResultsLayout.defaultProps = {
+  stats: [],
+  histogram: null,
+  statsTitle: null,
+  histogramTitle: null,
+  tableTitle: null,
+  // minStatWidth: 100,
+  extra: [],
+  style: {},
+};
+
+export function HelpfulText(props) {
+  return (
+    <div className={classConcat('HelpfulText', props.className)}>
+      {props.children} <Tooltip title={props.hint}>{props.icon}</Tooltip>
+    </div>
+  );
+}
+
+HelpfulText.defaultProps = {
+  hint: '',
+  icon: <QuestionCircleOutlined />,
 };

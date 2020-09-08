@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Card, Input, Space, Typography} from 'antd';
+import {Button, Input, Statistic, Typography} from 'antd';
 import './NumberMemory.less';
 import Histogram from './Histogram';
+import {ordinalEnding} from './utils';
+import {ResultsLayout} from './ResultFormatters';
 
 const {Title, Text} = Typography;
 
@@ -20,7 +22,7 @@ class NumberMemory extends Component {
   }
 
   submitResults = () => {
-    const bodyContent = {round: this.state.round};
+    const bodyContent = {round: this.state.round - 1};
     console.log('POSTing', bodyContent);
     fetch('/api/number-memory', {
       method: 'POST',
@@ -71,7 +73,7 @@ class NumberMemory extends Component {
       if (state.input === state.number) {
         return {phase: 'resultsPass'};
       }
-      this.submitResults(null); //todo: usernames
+      this.submitResults();
       return {phase: 'resultsFail'};
     });
   };
@@ -199,27 +201,41 @@ class NumberMemory extends Component {
         <Title className="Title">Number Memory</Title>
         <div className="Main">{this.letTheGamesBegin()}</div>
         {results && (
-          <div className="results">
-            <Card className="stats-card">
-              <div className="label-and-stat">
-                <Text strong>Rounds</Text>
-                <Text>{results.query['max_round'].toFixed()}</Text>
-              </div>
-              <div className="label-and-stat">
-                <Text strong>Percentile</Text>
-                <Text>{(results.query['quantile'] * 100).toFixed()}</Text>
-              </div>
-            </Card>
-            <Histogram
-              className="histogram-card"
-              data={results.histogram}
-              cutoff={this.calculateCutoff()}
-              xAxis={{digits: 0, title: 'Round'}}
-              yAxis={{title: 'Frequency'}}
-              points={results.query}
-              title="Global Performance"
+          <>
+            <Title className="page-title">Results</Title>
+            <ResultsLayout
+              stats={[
+                <Statistic
+                  title="Longest Number"
+                  precision={0}
+                  value={results.query['max_round']}
+                  suffix="digits"
+                />,
+                <Statistic
+                  title="Percentile"
+                  value={Math.round(100 * results.query['quantile'])}
+                  suffix={ordinalEnding(
+                    Math.round(100 * results.query['quantile'])
+                  )}
+                />,
+              ]}
+              statsTitle="Your Stats"
+              histogram={
+                <Histogram
+                  className="histogram-card"
+                  discreteQuantile={true}
+                  data={results.histogram}
+                  cutoff={this.calculateCutoff()}
+                  xAxis={{digits: 0, title: 'Digits Memorized'}}
+                  yAxis={{title: 'Frequency'}}
+                  points={results.query}
+                  // title="Global Performance"
+                  // ascending={false}
+                />
+              }
+              histogramTitle="Global Performance"
             />
-          </div>
+          </>
         )}
       </div>
     );
